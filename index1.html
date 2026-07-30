@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>สลากจำลอง — เกมสุ่มหวย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+ :root{
+  --bg:#0b0d1a;
+  --bg-alt:#12152b;
+  --card:#181c38;
+  --card-hi:#212648;
+  --gold:#d9a441;
+  --gold-soft:#f0cd7c;
+  --red:#e05a4e;
+  --green:#3cb27a;
+  --purple:#a56bf0;
+  --text:#f2ece0;
+  --text-dim:#9aa0c0;
+  --border:#2f3358;
+}
+  *{box-sizing:border-box;}
+  html{touch-action:manipulation;}
+  html,body{margin:0;padding:0;background:#0b0b12;color:var(--text);font-family:'Sarabun',sans-serif;}
+  #app{max-width:720px;margin:0 auto;padding:18px 14px 40px;position:relative;}
+  .screen{display:none;animation:fadein .35s ease;}
+  .screen.active{display:block;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- header / perforation motif ---------- */
+  .ticket-header{
+    background:linear-gradient(135deg,var(--bg-alt),#191d3d);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px 20px 14px;
+    margin-bottom:18px;
+    position:relative;
+    overflow:hidden;
+  }
+  .ticket-header::after{
+    content:"";
+    position:absolute;left:0;right:0;bottom:0;height:0;
+    border-bottom:2px dashed rgba(217,164,65,.35);
+  }
+  .eyebrow{font-family:'Chakra Petch',sans-serif;letter-spacing:.14em;font-size:11px;color:var(--gold-soft);text-transform:uppercase;}
+  h1{font-family:'Chakra Petch',sans-serif;font-size:22px;margin:4px 0 2px;font-weight:700;}
+  h2{font-family:'Chakra Petch',sans-serif;font-size:17px;margin:0 0 6px;font-weight:700;color:var(--gold-soft);}
+  .sub{font-size:12.5px;color:var(--text-dim);}
+  .balance-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+  .balance-label{font-size:12px;color:var(--text-dim);}
+  .balance-amt{font-family:'Chakra Petch',sans-serif;font-size:24px;font-weight:700;}
+  .balance-amt.neg{color:var(--red);}
+  .balance-amt.pos{color:var(--gold-soft);}
+
+  /* ---------- buttons ---------- */
+  button{font-family:'Sarabun',sans-serif;cursor:pointer;touch-action:manipulation;}
+  .btn{
+    display:block;width:100%;padding:14px 16px;border-radius:10px;border:1px solid var(--border);
+    background:var(--card);color:var(--text);font-size:15px;font-weight:600;margin-bottom:10px;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;text-align:left;
+  }
+  .btn:active{transform:scale(.98);}
+  .btn:hover{background:var(--card-hi);border-color:var(--gold);}
+  .btn .btn-title{font-family:'Chakra Petch',sans-serif;font-size:15px;}
+  .btn .btn-desc{font-size:12px;color:var(--text-dim);margin-top:2px;}
+  .btn.gold{background:linear-gradient(135deg,var(--gold),#b9822f);border:none;color:#1a1000;text-align:center;font-family:'Chakra Petch',sans-serif;}
+  .btn.gold:hover{filter:brightness(1.08);}
+  .btn.gold:disabled{opacity:.4;filter:none;cursor:not-allowed;}
+  .btn.ghost{background:transparent;text-align:center;color:var(--text-dim);border-color:var(--border);}
+  .btn.ghost:hover{color:var(--text);}
+  .row2{display:flex;gap:10px;}
+  .row2 .btn{flex:1;}
+
+  /* ---------- number slots (select screen) ---------- */
+  .slot{
+    background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;position:relative;
+  }
+  .slot-title{font-family:'Chakra Petch',sans-serif;font-size:12px;color:var(--gold-soft);letter-spacing:.08em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+  .remove-slot{background:none;border:none;color:var(--text-dim);font-size:16px;padding:2px 8px;}
+  .remove-slot:hover{color:var(--red);}
+  .digits-row{display:flex;gap:6px;justify-content:center;margin-bottom:12px;}
+  .digit-input{
+    width:40px;height:48px;text-align:center;
+    background:var(--bg);border:1px solid var(--border);border-radius:8px;
+    font-family:'Chakra Petch',sans-serif;font-size:20px;font-weight:700;color:var(--gold-soft);
+    -webkit-appearance:none;appearance:none;caret-color:var(--gold);
+  }
+  .digit-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(217,164,65,.25);}
+  .digit-hint{text-align:center;font-size:11px;color:var(--text-dim);margin:-6px 0 12px;}
+  .qty-row{display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;color:var(--text-dim);}
+  .qty-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:16px;}
+  .qty-btn:hover{border-color:var(--gold);}
+  .qty-val{font-family:'Chakra Petch',sans-serif;font-size:16px;color:var(--text);min-width:28px;text-align:center;}
+  .slot-cost{text-align:center;font-size:11.5px;color:var(--text-dim);margin-top:8px;}
+  .slot-cost b{color:var(--gold-soft);font-family:'Chakra Petch',sans-serif;}
+
+  .cost-summary{
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--bg-alt);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin:14px 0;
+  }
+  .cost-summary .label{font-size:12.5px;color:var(--text-dim);}
+  .cost-summary .value{font-family:'Chakra Petch',sans-serif;font-size:19px;font-weight:700;color:var(--gold-soft);}
+
+  /* ---------- draw screen ---------- */
+  .stage-block{
+    background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;
+    opacity:0;transform:translateY(8px);animation:stagein .4s ease forwards;
+  }
+  @keyframes stagein{to{opacity:1;transform:translateY(0);}}
+  .stage-name{font-family:'Chakra Petch',sans-serif;font-size:12px;color:var(--gold-soft);letter-spacing:.06em;margin-bottom:8px;}
+  .stage-numbers{display:flex;flex-wrap:wrap;gap:6px;}
+  .num-chip{
+    font-family:'Chakra Petch',sans-serif;background:var(--bg);border:1px solid var(--border);
+    border-radius:6px;padding:5px 9px;font-size:13px;letter-spacing:.03em;color:var(--text);
+  }
+  .num-chip.hit{border-color:var(--gold);color:var(--gold-soft);background:rgba(217,164,65,.12);}
+  .buff-green{color:var(--green);font-weight:800;text-shadow:0 0 6px rgba(60,178,122,.55);}
+  .buff-purple{color:var(--purple);font-weight:800;text-shadow:0 0 6px rgba(165,107,240,.55);}
+  .spin-row{display:flex;gap:6px;justify-content:center;margin:6px 0;}
+  .spin-cell{
+    width:46px;height:56px;border-radius:8px;background:var(--bg);border:1px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;font-family:'Chakra Petch',sans-serif;font-size:26px;font-weight:700;color:var(--gold-soft);
+  }
+  .spin-cell.buff-green{border-color:var(--green);background:rgba(60,178,122,.18);color:var(--green);}
+  .spin-cell.buff-purple{border-color:var(--purple);background:rgba(165,107,240,.18);color:var(--purple);}
+  .buff-banner{background:rgba(60,178,122,.12);border:1px solid var(--green);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:13px;}
+  #drawSkip{position:sticky;bottom:10px;margin-top:12px;}
+
+  /* ---------- result screen ---------- */
+  .result-banner{
+    text-align:center;padding:22px 16px;border-radius:14px;margin-bottom:16px;border:1px solid var(--border);
+  }
+  .result-banner.win{background:linear-gradient(135deg,rgba(60,178,122,.18),rgba(60,178,122,.05));border-color:var(--green);}
+  .result-banner.lose{background:linear-gradient(135deg,rgba(224,90,78,.16),rgba(224,90,78,.04));border-color:var(--red);}
+  .result-banner .big{font-family:'Chakra Petch',sans-serif;font-size:30px;font-weight:700;}
+  .result-banner .big.win-text{color:var(--green);}
+  .result-banner .big.lose-text{color:var(--red);}
+  .ticket-result{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .ticket-result .tnum{font-family:'Chakra Petch',sans-serif;font-size:17px;color:var(--gold-soft);letter-spacing:.04em;}
+  .ticket-result .prize-line{font-size:12.5px;color:var(--text-dim);display:flex;justify-content:space-between;margin-top:4px;}
+  .ticket-result .prize-line b{color:var(--text);}
+  .kv-line{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);}
+  .kv-line:last-child{border-bottom:none;}
+  .kv-line .k{color:var(--text-dim);}
+  .kv-line .v{font-family:'Chakra Petch',sans-serif;}
+
+  details.prize-ref{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-top:14px;}
+  details.prize-ref summary{font-family:'Chakra Petch',sans-serif;color:var(--gold-soft);cursor:pointer;font-size:13px;letter-spacing:.05em;}
+  table.prize-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px;}
+  table.prize-table th{color:var(--text-dim);font-weight:600;text-align:left;padding:6px 4px;border-bottom:1px solid var(--border);font-size:11px;}
+  table.prize-table td{padding:6px 4px;border-bottom:1px solid var(--border);}
+  table.prize-table td.amt{color:var(--gold-soft);font-family:'Chakra Petch',sans-serif;text-align:right;}
+
+  /* ---------- history ---------- */
+  .hist-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .hist-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .hist-date{font-size:11px;color:var(--text-dim);}
+  .badge{font-family:'Chakra Petch',sans-serif;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:700;}
+  .badge.win{background:rgba(60,178,122,.18);color:var(--green);}
+  .badge.lose{background:rgba(224,90,78,.16);color:var(--red);}
+  .hist-nums{font-family:'Chakra Petch',sans-serif;font-size:13px;color:var(--text);margin-bottom:4px;}
+  .hist-money{font-size:12px;color:var(--text-dim);display:flex;gap:14px;}
+  .empty-note{text-align:center;color:var(--text-dim);font-size:13px;padding:30px 10px;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(5,6,15,.78);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
+  .modal-box{background:var(--card);border:1px solid var(--gold);border-radius:14px;padding:20px;max-width:340px;text-align:center;}
+  .modal-box p{font-size:14px;margin:0 0 16px;}
+
+  /* ---------- temple ---------- */
+  .temple-art{width:100%;height:150px;margin-bottom:14px;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#0d1030,#1a1440);}
+  .chant-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+  .chant-card h3{font-family:'Chakra Petch',sans-serif;font-size:13px;color:var(--gold-soft);margin:0 0 6px;}
+  .chant-card p{font-size:13px;color:var(--text-dim);line-height:1.6;margin:0;}
+  .progress-outer{background:var(--bg);border:1px solid var(--border);border-radius:20px;height:14px;overflow:hidden;margin:14px 0;}
+  .progress-inner{background:linear-gradient(90deg,var(--gold),var(--gold-soft));height:100%;width:0%;transition:width .2s linear;}
+  .amt-input{
+    width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);
+    color:var(--gold-soft);font-family:'Chakra Petch',sans-serif;font-size:18px;text-align:center;margin-bottom:10px;
+  }
+  .amt-input:focus{outline:none;border-color:var(--gold);}
+  .quick-amts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .quick-amt-btn{
+    flex:1;min-width:70px;padding:9px 4px;border-radius:8px;border:1px solid var(--border);background:var(--bg);
+    color:var(--text);font-family:'Chakra Petch',sans-serif;font-size:12.5px;
+  }
+  .quick-amt-btn:hover{border-color:var(--gold);}
+  .quick-amt-btn:disabled{opacity:.3;cursor:not-allowed;}
+  .quick-amt-btn.sel{border-color:var(--gold);background:rgba(217,164,65,.15);color:var(--gold-soft);}
+  .temple-note{font-size:12px;color:var(--text-dim);text-align:center;margin-bottom:14px;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===================== MENU ===================== -->
+  <div class="screen active" id="screen-menu">
+    <div class="ticket-header">
+      <div class="eyebrow">สลากกินแบ่ง · งวดจำลอง</div>
+      <h1>เกมสุ่มหวยรางวัลที่ 1</h1>
+      <div class="sub">เลือกเลข 6 หลัก ลุ้นผลแบบสมจริง หักภาษี 1.5% เมื่อถูกรางวัล</div>
+      <div class="balance-row">
+        <div>
+          <div class="balance-label">ยอดเงินคงเหลือ</div>
+          <div class="balance-amt" id="menuBalance">0</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" id="btnNewGame">
+      <div class="btn-title">🎫 เกมใหม่</div>
+      <div class="btn-desc">เลือกเลขและซื้อสลากสูงสุด 3 ชุด</div>
+    </button>
+    <button class="btn" id="btnResume" style="display:none;">
+      <div class="btn-title">▶ เล่นเกมเดิมต่อ</div>
+      <div class="btn-desc" id="resumeDesc">มีเกมที่ยังไม่จบอยู่</div>
+    </button>
+    <button class="btn" id="btnHistory">
+      <div class="btn-title">📜 ประวัติการเล่น</div>
+      <div class="btn-desc">ดูรายการที่ถูกหวยและโดนกิน</div>
+    </button>
+  </div>
+
+  <!-- ===================== SELECT NUMBERS ===================== -->
+  <div class="screen" id="screen-select">
+    <div class="ticket-header">
+      <div class="eyebrow">ขั้นตอนที่ 1</div>
+      <h1>เลือกเลขของคุณ</h1>
+      <div class="sub">แตะช่องแล้วพิมพ์เลขได้เลย (บนมือถือจะขึ้นปุ่มตัวเลข) · เพิ่มได้สูงสุด 3 ชุด · ราคาใบละ <b id="priceHint">100</b> บาท</div>
+    </div>
+    <div id="slotsContainer"></div>
+    <button class="btn ghost" id="btnAddSlot">+ เพิ่มชุดเลข</button>
+    <div class="cost-summary">
+      <div class="label">ค่าสลากรวมทั้งหมด</div>
+      <div class="value" id="totalCost">0 บาท</div>
+    </div>
+    <button class="btn gold" id="btnBuy">ซื้อสลากและเริ่มออกรางวัล</button>
+    <button class="btn ghost" id="btnBackMenu1">← กลับเมนู</button>
+  </div>
+
+  <!-- ===================== TEMPLE (MERIT MINI-GAME) ===================== -->
+  <div class="screen" id="screen-temple">
+    <div class="ticket-header">
+      <div class="eyebrow">แวะทำบุญ</div>
+      <h1 id="templeTitle">วัดประจำงวด</h1>
+      <div class="sub" id="templeSub">ทำบุญก่อนลุ้นหวย เผื่อได้รับพร</div>
+    </div>
+    <div id="templeContent"></div>
+  </div>
+
+  <!-- ===================== DRAW SCREEN ===================== -->
+  <div class="screen" id="screen-draw">
+    <div class="ticket-header">
+      <div class="eyebrow">ขั้นตอนที่ 2</div>
+      <h1>กำลังออกรางวัล…</h1>
+      <div class="sub">ลุ้นทีละรางวัล หรือกดข้ามเพื่อดูผลทันที</div>
+    </div>
+    <div id="stagesContainer"></div>
+    <button class="btn gold" id="drawSkip">⏩ ข้ามไปดูผลทั้งหมด</button>
+    <button class="btn ghost" id="btnBackMenu2">← กลับเมนู (เกมจะยังค้างไว้)</button>
+  </div>
+
+  <!-- ===================== RESULT SCREEN ===================== -->
+  <div class="screen" id="screen-result">
+    <div id="resultBanner"></div>
+    <div id="resultTickets"></div>
+    <div class="ticket-header" style="margin-top:6px;">
+      <div class="kv-line"><span class="k">เงินรางวัลรวม (ก่อนหักภาษี)</span><span class="v" id="rGross">0</span></div>
+      <div class="kv-line"><span class="k">หักภาษี 1.5%</span><span class="v" id="rTax">0</span></div>
+      <div class="kv-line"><span class="k">ได้รับสุทธิ</span><span class="v" id="rNet">0</span></div>
+      <div class="kv-line"><span class="k">ยอดเงินคงเหลือใหม่</span><span class="v" id="rBalance">0</span></div>
+    </div>
+    <details class="prize-ref">
+      <summary>ดูตารางรางวัลทั้งหมด</summary>
+      <div id="prizeTableHolder"></div>
+    </details>
+    <button class="btn gold" id="btnResultMenu" style="margin-top:14px;">กลับเมนูหลัก</button>
+  </div>
+
+  <!-- ===================== HISTORY SCREEN ===================== -->
+  <div class="screen" id="screen-history">
+    <div class="ticket-header">
+      <div class="eyebrow">บันทึก</div>
+      <h1>ประวัติการเล่น</h1>
+    </div>
+    <div id="historyList"></div>
+    <button class="btn ghost" id="btnBackMenu3">← กลับเมนู</button>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const TICKET_PRICE = 100;
+  const START_BALANCE = 100000;
+  const TAX_RATE = 0.015;
+  const MAX_SLOTS = 3;
+  const OFFERING_COST = 20;
+
+  const PRIZE_TABLE = [
+    {name:'รางวัลที่ 1', qty:'1 รางวัล', amount:6000000},
+    {name:'รางวัลข้างเคียงรางวัลที่ 1', qty:'2 รางวัล', amount:100000},
+    {name:'รางวัลที่ 2', qty:'5 รางวัล', amount:200000},
+    {name:'รางวัลที่ 3', qty:'10 รางวัล', amount:80000},
+    {name:'รางวัลที่ 4', qty:'50 รางวัล', amount:40000},
+    {name:'รางวัลที่ 5', qty:'100 รางวัล', amount:20000},
+    {name:'เลขหน้า 3 ตัว', qty:'ออก 2 ครั้ง', amount:4000},
+    {name:'เลขท้าย 3 ตัว', qty:'ออก 2 ครั้ง', amount:4000},
+    {name:'เลขท้าย 2 ตัว', qty:'ออก 1 ครั้ง', amount:2000},
+  ];
+
+  const CHANTS = [
+    {title:'บทบูชาพระรัตนตรัย', body:'ตั้งจิตนอบน้อมบูชาพระพุทธ พระธรรม และพระสงฆ์ เริ่มต้นด้วย "อะระหัง สัมมาสัมพุทโธ ภะคะวา..." ระลึกถึงพระคุณอันประเสริฐของพระรัตนตรัยเป็นที่พึ่งอันสูงสุด'},
+    {title:'บทนมัสการพระพุทธคุณ (อิติปิโส)', body:'สวดระลึกถึงคุณของพระพุทธเจ้า พระธรรมเจ้า และพระสังฆเจ้า เพื่อความสงบร่มเย็นแห่งจิตใจ และเป็นสิริมงคลแก่ชีวิต'},
+    {title:'บทแผ่เมตตาและกรวดน้ำ', body:'อุทิศส่วนบุญส่วนกุศลที่ได้บำเพ็ญมา ให้แก่บิดามารดา ญาติมิตร และสรรพสัตว์ทั้งหลาย ขอให้ทุกท่านมีความสุขความเจริญโดยทั่วกัน'}
+  ];
+
+  // buff weighting: which prize tier gets a digit "corrected" to match the player
+  const BUFF_WEIGHTS = [
+    {key:'fifth', w:45, arr:'fifth'},
+    {key:'fourth', w:37.5, arr:'fourth'},
+    {key:'third', w:10, arr:'third'},
+    {key:'second', w:5, arr:'second'},
+    {key:'first', w:2.5, arr:null}
+  ];
+
+  // ---------- storage helpers ----------
+  async function storeGet(key){
+    try{ const r = await window.storage.get(key,false); return r?r.value:null; }
+    catch(e){ return null; }
+  }
+  async function storeSet(key,value){
+    try{ await window.storage.set(key,value,false); }catch(e){}
+  }
+  async function storeDelete(key){
+    try{ await window.storage.delete(key,false); }catch(e){}
+  }
+
+  let balance = START_BALANCE;
+  let currentGame = null; // {status:'select'|'temple'|'drawing', tickets, draw, buff, templeState}
+  let history = [];
+
+  function fmt(n){
+    const sign = n<0 ? '-' : '';
+    return sign + Math.abs(Math.round(n)).toLocaleString('th-TH') + ' บาท';
+  }
+
+  async function init(){
+    const b = await storeGet('balance');
+    balance = b!==null ? parseFloat(b) : START_BALANCE;
+    if(b===null) await storeSet('balance', String(balance));
+
+    const cg = await storeGet('current_game');
+    currentGame = cg ? JSON.parse(cg) : null;
+
+    const h = await storeGet('history');
+    history = h ? JSON.parse(h) : [];
+
+    renderPrizeTable();
+    renderMenu();
+    showScreen('menu');
+  }
+
+  async function saveBalance(){ await storeSet('balance', String(balance)); }
+  async function saveCurrentGame(){
+    if(currentGame) await storeSet('current_game', JSON.stringify(currentGame));
+    else await storeDelete('current_game');
+  }
+  async function saveHistory(){ await storeSet('history', JSON.stringify(history)); }
+
+  function showScreen(name){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('screen-'+name).classList.add('active');
+  }
+
+  function renderPrizeTable(){
+    const holder = document.getElementById('prizeTableHolder');
+    holder.innerHTML = `<table class="prize-table">
+      <tr><th>รางวัล</th><th>จำนวน</th><th>เงินรางวัล/ใบ</th></tr>
+      ${PRIZE_TABLE.map(p=>`<tr><td>${p.name}</td><td>${p.qty}</td><td class="amt">${p.amount.toLocaleString('th-TH')}</td></tr>`).join('')}
+    </table>`;
+  }
+
+  // ---------- MENU ----------
+  function renderMenu(){
+    const el = document.getElementById('menuBalance');
+    el.textContent = fmt(balance);
+    el.className = 'balance-amt ' + (balance<0?'neg':'pos');
+    const resumeBtn = document.getElementById('btnResume');
+    const desc = document.getElementById('resumeDesc');
+    if(currentGame){
+      resumeBtn.style.display='block';
+      desc.textContent = currentGame.status==='select'
+        ? 'ยังไม่ได้ซื้อสลาก — กลับไปเลือกเลขต่อ'
+        : currentGame.status==='temple'
+          ? 'กำลังทำบุญที่วัด — กลับไปทำต่อ'
+          : 'ซื้อสลากแล้ว — กลับไปลุ้นผลรางวัล';
+    } else {
+      resumeBtn.style.display='none';
+    }
+  }
+
+  document.getElementById('btnNewGame').onclick = ()=>{
+    if(currentGame){
+      openConfirmOverwrite();
+    } else {
+      startNewSelection();
+    }
+  };
+  document.getElementById('btnResume').onclick = ()=>{
+    if(!currentGame) return;
+    if(currentGame.status==='select'){ renderSelectScreen(currentGame.tickets); showScreen('select'); }
+    else if(currentGame.status==='temple'){
+      templeState = currentGame.templeState;
+      renderTemple();
+      showScreen('temple');
+      if(templeState.step==='chant') startChantTimer();
+    }
+    else { showScreen('draw'); runDraw(currentGame.draw, currentGame.tickets, currentGame.buff||[]); }
+  };
+  document.getElementById('btnHistory').onclick = ()=>{ renderHistory(); showScreen('history'); };
+  document.getElementById('btnBackMenu1').onclick = ()=>{ renderMenu(); showScreen('menu'); };
+  document.getElementById('btnBackMenu2').onclick = ()=>{ renderMenu(); showScreen('menu'); };
+  document.getElementById('btnBackMenu3').onclick = ()=>{ renderMenu(); showScreen('menu'); };
+  document.getElementById('btnResultMenu').onclick = ()=>{ renderMenu(); showScreen('menu'); };
+
+  function openConfirmOverwrite(){
+    const overlay = document.createElement('div');
+    overlay.className='modal-overlay';
+    overlay.innerHTML = `<div class="modal-box">
+      <p>คุณมีเกมค้างอยู่ ถ้าเริ่มเกมใหม่ เกมเดิมจะถูกยกเลิก (เงินที่จ่ายไปแล้วจะไม่คืน)<br>ต้องการเริ่มเกมใหม่หรือไม่?</p>
+      <div class="row2"><button class="btn ghost" id="cancelOw">ยกเลิก</button><button class="btn gold" id="confirmOw">เริ่มใหม่</button></div>
+    </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('cancelOw').onclick=()=>overlay.remove();
+    document.getElementById('confirmOw').onclick=async ()=>{
+      currentGame=null; await saveCurrentGame();
+      overlay.remove();
+      startNewSelection();
+    };
+  }
+
+  // ---------- SELECT SCREEN ----------
+  function blankTicket(){ return { digits:[0,0,0,0,0,0], qty:1 }; }
+
+  function startNewSelection(){
+    currentGame = { status:'select', tickets:[blankTicket()], draw:null, buff:null };
+    renderSelectScreen(currentGame.tickets);
+    showScreen('select');
+  }
+
+  function updateCostDisplays(tickets){
+    tickets.forEach((t,idx)=>{
+      const c = document.querySelector(`[data-cost="${idx}"]`);
+      if(c) c.textContent = (t.qty*TICKET_PRICE).toLocaleString('th-TH');
+    });
+    const total = tickets.reduce((s,t)=>s+t.qty*TICKET_PRICE,0);
+    document.getElementById('totalCost').textContent = fmt(total);
+  }
+
+  function renderSelectScreen(tickets){
+    const container = document.getElementById('slotsContainer');
+    container.innerHTML = '';
+    tickets.forEach((t, idx)=>{
+      const slot = document.createElement('div');
+      slot.className='slot';
+      slot.innerHTML = `
+        <div class="slot-title"><span>ชุดที่ ${idx+1}</span>
+          ${tickets.length>1 ? `<button class="remove-slot" data-idx="${idx}">✕</button>` : ''}
+        </div>
+        <div class="digits-row" data-digits="${idx}"></div>
+        <div class="digit-hint">แตะแล้วพิมพ์เลข 0-9 ได้เลย</div>
+        <div class="qty-row">
+          <span>จำนวนใบ</span>
+          <button class="qty-btn" data-act="dec" data-idx="${idx}">−</button>
+          <span class="qty-val" data-qty="${idx}">${t.qty}</span>
+          <button class="qty-btn" data-act="inc" data-idx="${idx}">+</button>
+        </div>
+        <div class="slot-cost">รวม <b data-cost="${idx}">${t.qty*TICKET_PRICE}</b> บาท</div>
+      `;
+      container.appendChild(slot);
+      const digitsRow = slot.querySelector(`[data-digits="${idx}"]`);
+      t.digits.forEach((d,dIdx)=>{
+        const inp = document.createElement('input');
+        inp.className='digit-input';
+        inp.type='tel';
+        inp.inputMode='numeric';
+        inp.pattern='[0-9]*';
+        inp.maxLength=1;
+        inp.value=d;
+        inp.dataset.d = `${idx}-${dIdx}`;
+        digitsRow.appendChild(inp);
+      });
+    });
+
+    container.querySelectorAll('.digit-input').forEach(inp=>{
+      inp.addEventListener('focus', ()=> inp.select());
+      inp.addEventListener('input', ()=>{
+        const v = inp.value.replace(/[^0-9]/g,'').slice(-1);
+        inp.value = v;
+        const [i,d] = inp.dataset.d.split('-').map(Number);
+        if(v!==''){
+          tickets[i].digits[d] = Number(v);
+          persistSelect(tickets);
+          const next = container.querySelector(`[data-d="${i}-${d+1}"]`);
+          if(next){ next.focus(); } else { inp.blur(); }
+        }
+      });
+      inp.addEventListener('keydown', (e)=>{
+        if(e.key==='Backspace' && inp.value===''){
+          const [i,d] = inp.dataset.d.split('-').map(Number);
+          const prev = container.querySelector(`[data-d="${i}-${d-1}"]`);
+          if(prev){ prev.focus(); prev.select(); }
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-act]').forEach(btn=>{
+      btn.onclick=()=>{ const i=Number(btn.dataset.idx);
+        if(btn.dataset.act==='inc') tickets[i].qty = Math.min(999, tickets[i].qty+1);
+        else tickets[i].qty = Math.max(1, tickets[i].qty-1);
+        renderSelectScreen(tickets); persistSelect(tickets); };
+    });
+    container.querySelectorAll('.remove-slot').forEach(btn=>{
+      btn.onclick=()=>{ const i=Number(btn.dataset.idx); tickets.splice(i,1);
+        renderSelectScreen(tickets); persistSelect(tickets); };
+    });
+    document.getElementById('btnAddSlot').style.display = tickets.length>=MAX_SLOTS ? 'none':'block';
+    updateCostDisplays(tickets);
+  }
+
+  function persistSelect(tickets){
+    currentGame.status='select';
+    currentGame.tickets = tickets;
+    saveCurrentGame();
+    updateCostDisplays(tickets);
+  }
+
+  document.getElementById('btnAddSlot').onclick = ()=>{
+    if(currentGame.tickets.length<MAX_SLOTS){
+      currentGame.tickets.push(blankTicket());
+      renderSelectScreen(currentGame.tickets);
+      persistSelect(currentGame.tickets);
+    }
+  };
+
+  document.getElementById('btnBuy').onclick = async ()=>{
+    const tickets = currentGame.tickets;
+    const total = tickets.reduce((s,t)=>s+t.qty*TICKET_PRICE,0);
+    if(total<=0) return;
+    balance -= total;
+    await saveBalance();
+    const draw = generateDraw();
+    currentGame = { status:'drawing', tickets, draw, buff:null };
+    await saveCurrentGame();
+    openMeritModal(draw, tickets);
+  };
+
+  // ---------- MERIT / TEMPLE FLOW ----------
+  let templeState = null;
+
+  function openMeritModal(draw, tickets){
+    const overlay = document.createElement('div');
+    overlay.className='modal-overlay';
+    overlay.innerHTML = `<div class="modal-box">
+      <div style="font-size:34px;margin-bottom:8px;">🙏</div>
+      <p>ก่อนลุ้นผลรางวัล ท่านต้องการแวะทำบุญที่วัดหรือไม่?<br>
+      <span style="color:var(--text-dim);font-size:12px;">ซื้อดอกไม้ธูปเทียน 20 บาท ร่วมทำบุญตู้บริจาค แล้วฟังบทสวด — อาจได้รับพรช่วยให้เลขตรงรางวัลเพิ่มขึ้น 1 หลัก</span></p>
+      <div class="row2"><button class="btn ghost" id="skipMerit">ข้ามไปลุ้นเลย</button><button class="btn gold" id="yesMerit">ทำบุญ 🙏</button></div>
+    </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('skipMerit').onclick=()=>{ overlay.remove(); showScreen('draw'); runDraw(draw, tickets, []); };
+    document.getElementById('yesMerit').onclick=()=>{ overlay.remove(); startTemple(draw, tickets); };
+  }
+
+  function startTemple(draw, tickets){
+    templeState = { step:'offerings', draw, tickets, donation:0, luck:null, donateBuff:null };
+    currentGame.status='temple';
+    currentGame.templeState = templeState;
+    saveCurrentGame();
+    renderTemple();
+    showScreen('temple');
+  }
+
+  function templeSaveAndRender(){
+    currentGame.templeState = templeState;
+    saveCurrentGame();
+    renderTemple();
+  }
+
+  function templeArtSVG(){
+    return `<div class="temple-art"><svg viewBox="0 0 400 150" width="100%" height="100%" preserveAspectRatio="xMidYMax slice">
+      <rect width="400" height="150" fill="#0d1030"/>
+      <circle cx="330" cy="35" r="18" fill="#f0cd7c" opacity="0.85"/>
+      <g fill="#1a1a3a">
+        <rect x="0" y="120" width="400" height="30"/>
+      </g>
+      <g fill="none" stroke="#d9a441" stroke-width="2">
+        <polygon points="200,20 240,55 160,55" fill="#181c38"/>
+        <polygon points="200,5 215,25 185,25" fill="#d9a441"/>
+        <rect x="150" y="55" width="100" height="50" fill="#181c38" stroke="#2f3358"/>
+        <polygon points="120,55 280,55 260,40 140,40" fill="#12152b"/>
+        <rect x="180" y="80" width="40" height="25" fill="#0d1030"/>
+        <line x1="150" y1="105" x2="150" y2="125" />
+        <line x1="250" y1="105" x2="250" y2="125" />
+      </g>
+      <g fill="none" stroke="#8a6a2a" stroke-width="1.5" opacity="0.8">
+        <polygon points="60,105 90,130 30,130" fill="#12152b"/>
+        <polygon points="310,105 340,130 280,130" fill="#12152b"/>
+      </g>
+    </svg></div>`;
+  }
+
+  function renderTemple(){
+    const content = document.getElementById('templeContent');
+    const titleEl = document.getElementById('templeTitle');
+    const subEl = document.getElementById('templeSub');
+
+    if(templeState.step==='offerings'){
+      titleEl.textContent = 'ซื้อดอกไม้ธูปเทียน';
+      subEl.textContent = 'เตรียมของไหว้ก่อนเข้าสักการะพระประธาน';
+      content.innerHTML = `
+        ${templeArtSVG()}
+        <div class="temple-note">ดอกบัว ธูป เทียน ราคารวม <b style="color:var(--gold-soft)">${OFFERING_COST} บาท</b></div>
+        <button class="btn gold" id="btnBuyOffering">ซื้อของไหว้ (-${OFFERING_COST} บาท)</button>
+        <button class="btn ghost" id="btnSkipTemple">ไม่ทำบุญแล้ว ไปลุ้นหวยเลย</button>
+      `;
+      document.getElementById('btnBuyOffering').onclick = async ()=>{
+        balance -= OFFERING_COST;
+        await saveBalance();
+        templeState.step='donate';
+        templeSaveAndRender();
+      };
+      document.getElementById('btnSkipTemple').onclick = ()=>{
+        currentGame.status='drawing';
+        saveCurrentGame();
+        showScreen('draw');
+        runDraw(templeState.draw, templeState.tickets, []);
+      };
+    }
+
+    else if(templeState.step==='donate'){
+      titleEl.textContent = 'ตู้บริจาค';
+      subEl.textContent = 'ยิ่งทำบุญมาก ยิ่งมีโอกาสได้รับพรจากพระ';
+      const maxAmt = Math.max(1, Math.floor(balance));
+      const quicks = [100,500,1000,5000,10000];
+      content.innerHTML = `
+        <div class="temple-note">ยอดเงินคงเหลือ: <b style="color:var(--gold-soft)">${fmt(balance)}</b></div>
+        <input type="number" class="amt-input" id="donateInput" placeholder="ใส่จำนวนเงินทำบุญ (บาท)" min="1" ${maxAmt>0?`max="${maxAmt}"`:''}>
+        <div class="quick-amts">
+          ${quicks.map(a=>`<button class="quick-amt-btn" data-amt="${a}" ${a>maxAmt?'disabled':''}>${a.toLocaleString('th-TH')}</button>`).join('')}
+        </div>
+        <button class="btn gold" id="btnDonateConfirm">หยอดตู้บริจาค 🙏</button>
+        <button class="btn ghost" id="btnDonateSkip">ไม่บริจาค ข้ามไปสวดมนต์เลย</button>
+      `;
+      const input = document.getElementById('donateInput');
+      content.querySelectorAll('.quick-amt-btn').forEach(b=>{
+        b.onclick=()=>{ input.value = b.dataset.amt; content.querySelectorAll('.quick-amt-btn').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); };
+      });
+      document.getElementById('btnDonateConfirm').onclick = async ()=>{
+        const amt = Math.floor(Number(input.value));
+        if(!amt || amt<=0){ input.style.borderColor='var(--red)'; return; }
+        if(amt>balance){ input.style.borderColor='var(--red)'; return; }
+        balance -= amt;
+        await saveBalance();
+        templeState.donation = amt;
+        templeState.luck = donationLuck(amt);
+        templeState.donateBuff = rollMeritBuffEvent(templeState.luck.chance, templeState.luck.canDouble, templeState.draw, templeState.tickets);
+        templeState.step='chant';
+        templeSaveAndRender();
+        startChantTimer();
+      };
+      document.getElementById('btnDonateSkip').onclick = ()=>{
+        templeState.donation = 0;
+        templeState.luck = { chance:0, canDouble:false };
+        templeState.donateBuff = null;
+        templeState.step='chant';
+        templeSaveAndRender();
+        startChantTimer();
+      };
+    }
+
+    else if(templeState.step==='chant'){
+      titleEl.textContent = 'สวดมนต์ไหว้พระ';
+      subEl.textContent = 'ตั้งจิตให้สงบ ระลึกถึงบทสวด';
+      content.innerHTML = `
+        ${CHANTS.map(c=>`<div class="chant-card"><h3>${c.title}</h3><p>${c.body}</p></div>`).join('')}
+        <div class="progress-outer"><div class="progress-inner" id="chantProgress"></div></div>
+        <button class="btn gold" id="btnSkipChant">ข้ามบทสวด</button>
+      `;
+      document.getElementById('btnSkipChant').onclick = ()=>{
+        clearChantTimer();
+        rollMonkBlessing();
+        templeState.step='blessing';
+        templeSaveAndRender();
+      };
+    }
+
+    else if(templeState.step==='blessing'){
+      rollMonkBlessing(); // safety net if reached without rolling (e.g. resume)
+      const tierName = {fifth:'รางวัลที่ 5',fourth:'รางวัลที่ 4',third:'รางวัลที่ 3',second:'รางวัลที่ 2',first:'รางวัลที่ 1'};
+      titleEl.textContent = 'พระให้พร';
+      subEl.textContent = 'เจริญพร ขอให้เดินทางกลับโดยสวัสดิภาพ';
+
+      function eventCard(label, ev){
+        if(!ev) return '';
+        const cls = ev.doubleDigit ? 'buff-purple' : 'buff-green';
+        const rows = ev.entries.map(en=>{
+          const digs = digitsToHTML(templeState.tickets[en.ticketIdx].digits, en.positions, cls);
+          return `<div style="margin-top:6px;font-size:13px;">ชุดที่ ${en.ticketIdx+1}: <span style="font-family:'Chakra Petch',sans-serif;font-size:16px;">${digs}</span></div>`;
+        }).join('');
+        return `<div class="buff-banner">🙏 <b>${label}</b> — ตรงกับ <b>${tierName[ev.tierKey]}</b> เพิ่มอีก ${ev.doubleDigit?2:1} หลัก (ทุกชุดที่ซื้อ)${rows}</div>`;
+      }
+
+      const donateCard = eventCard('พรจากตู้บริจาค', templeState.donateBuff);
+      const monkCard = eventCard('พรจากพระตอนสวดจบ', templeState.monkBuff);
+      let msg = donateCard + monkCard;
+      if(!msg){
+        msg = `<div class="chant-card"><p>วันนี้ยังไม่มีโชคจากการทำบุญ แต่กุศลผลบุญที่ท่านทำจะติดตัวท่านไปตลอด ขอให้โชคดีกับการลุ้นหวยครั้งนี้</p></div>`;
+      }
+      content.innerHTML = `${msg}<button class="btn gold" id="btnToDraw">ไปลุ้นผลรางวัล →</button>`;
+      document.getElementById('btnToDraw').onclick = ()=>{
+        const buffList = mergeBuffEntries(templeState.donateBuff, templeState.monkBuff);
+        currentGame.status='drawing';
+        currentGame.buff = buffList;
+        saveCurrentGame();
+        showScreen('draw');
+        runDraw(templeState.draw, templeState.tickets, buffList);
+      };
+    }
+  }
+
+  let chantTimer = null;
+  function startChantTimer(){
+    clearChantTimer();
+    const totalMs = 30000;
+    const start = Date.now();
+    const bar = document.getElementById('chantProgress');
+    chantTimer = setInterval(()=>{
+      const elapsed = Date.now()-start;
+      const pct = Math.min(100, (elapsed/totalMs)*100);
+      if(bar) bar.style.width = pct+'%';
+      if(elapsed>=totalMs){
+        clearChantTimer();
+        rollMonkBlessing();
+        templeState.step='blessing';
+        templeSaveAndRender();
+      }
+    }, 200);
+  }
+  function clearChantTimer(){ if(chantTimer){ clearInterval(chantTimer); chantTimer=null; } }
+
+  function rollMonkBlessing(){
+    if(templeState.monkBuff !== undefined) return; // already rolled, don't re-roll on re-render/resume
+    const luck = templeState.luck || { chance:0, canDouble:false };
+    templeState.monkBuff = rollMeritBuffEvent(luck.chance, luck.canDouble, templeState.draw, templeState.tickets);
+  }
+
+  function digitsToHTML(digits, highlightPositions, colorClass){
+    return digits.map((d,i)=> highlightPositions.includes(i) ? `<span class="${colorClass}">${d}</span>` : d).join('');
+  }
+
+  function weightedPick(weights){
+    const total = weights.reduce((s,w)=>s+w.w,0);
+    let r = Math.random()*total;
+    for(const w of weights){ if(r<w.w) return w; r-=w.w; }
+    return weights[weights.length-1];
+  }
+
+  function donationLuck(amt){
+    if(amt>=10000) return { chance:100, canDouble:true };
+    if(amt>=5000) return { chance:100, canDouble:false };
+    if(amt>=1000) return { chance:20, canDouble:false };
+    return { chance:5, canDouble:false };
+  }
+
+  // Rolls ONE blessing event. If it succeeds, EVERY ticket set gets a digit
+  // corrected (not just one) - so with 3 sets bought, all 3 benefit.
+  // Call this once for the donation-box blessing and once for the monk's
+  // end-of-chant blessing; both results stack on top of each other.
+  function rollMeritBuffEvent(chancePercent, canDouble, draw, tickets){
+    if(!chancePercent || Math.random()*100 >= chancePercent) return null; // no blessing this event
+    const doubleDigit = canDouble && Math.random()<0.5;
+    const tier = weightedPick(BUFF_WEIGHTS);
+    const entries = [];
+    tickets.forEach((t, ticketIdx)=>{
+      const pool = tier.key==='first' ? [draw.first] : draw[tier.arr];
+      const numIdx = Math.floor(Math.random()*pool.length);
+      const currentNum = tier.key==='first' ? draw.first : draw[tier.arr][numIdx];
+      const numArr = currentNum.split('');
+      let positions = [0,1,2,3,4,5].filter(p=>numArr[p]!==String(t.digits[p]));
+      if(positions.length===0) return; // this ticket already fully matches, nothing to add
+      for(let i=positions.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [positions[i],positions[j]]=[positions[j],positions[i]]; }
+      const count = doubleDigit ? Math.min(2,positions.length) : 1;
+      const chosen = positions.slice(0,count);
+      chosen.forEach(p=> numArr[p] = String(t.digits[p]));
+      const newNum = numArr.join('');
+      if(tier.key==='first') draw.first = newNum;
+      else draw[tier.arr][numIdx] = newNum;
+      entries.push({ tierKey:tier.key, ticketIdx, numIdx, positions:chosen, doubleDigit });
+    });
+    if(entries.length===0) return null;
+    return { tierKey:tier.key, doubleDigit, entries };
+  }
+
+  function mergeBuffEntries(...events){
+    let all = [];
+    events.forEach(ev=>{ if(ev) all = all.concat(ev.entries); });
+    return all;
+  }
+
+  function highlightsForTicket(buffList, ticketIdx){
+    const positions = new Set(); let purple=false;
+    buffList.forEach(e=>{ if(e.ticketIdx===ticketIdx){ e.positions.forEach(p=>positions.add(p)); if(e.doubleDigit) purple=true; } });
+    return { positions:[...positions], cls: purple?'buff-purple':'buff-green' };
+  }
+
+  function highlightsForNumber(buffList, tierKey, numIdx){
+    const positions = new Set(); let purple=false; let any=false;
+    buffList.forEach(e=>{ if(e.tierKey===tierKey && e.numIdx===numIdx){ any=true; e.positions.forEach(p=>positions.add(p)); if(e.doubleDigit) purple=true; } });
+    return any ? { positions:[...positions], cls: purple?'buff-purple':'buff-green' } : null;
+  }
+
+  // ---------- DRAW GENERATION ----------
+  function randDigits(n){ let s=''; for(let i=0;i<n;i++) s+=Math.floor(Math.random()*10); return s; }
+  function wrap6(n){ n=((n%1000000)+1000000)%1000000; return String(n).padStart(6,'0'); }
+
+  function generateDraw(){
+    const used6 = new Set();
+    function uniq6(){ let n; do{ n=randDigits(6); }while(used6.has(n)); used6.add(n); return n; }
+    function listUniq6(count){ const list=[]; while(list.length<count){ const n=randDigits(6); if(!used6.has(n)){ used6.add(n); list.push(n);} } return list; }
+    function listUniqShort(count,len){ const set=new Set(); while(set.size<count){ set.add(randDigits(len)); } return [...set]; }
+
+    const first = uniq6();
+    const firstNum = parseInt(first,10);
+    const near = [wrap6(firstNum-1), wrap6(firstNum+1)];
+    near.forEach(n=>used6.add(n));
+    const second = listUniq6(5);
+    const third = listUniq6(10);
+    const fourth = listUniq6(50);
+    const fifth = listUniq6(100);
+    const front3 = listUniqShort(2,3);
+    const back3 = listUniqShort(2,3);
+    const back2 = listUniqShort(1,2);
+    return { first, near, second, third, fourth, fifth, front3, back3, back2 };
+  }
+
+  function checkTicket(numStr, draw){
+    const hits=[];
+    if(numStr===draw.first) hits.push({name:'รางวัลที่ 1', amount:6000000});
+    else if(draw.near.includes(numStr)) hits.push({name:'รางวัลข้างเคียงรางวัลที่ 1', amount:100000});
+    else if(draw.second.includes(numStr)) hits.push({name:'รางวัลที่ 2', amount:200000});
+    else if(draw.third.includes(numStr)) hits.push({name:'รางวัลที่ 3', amount:80000});
+    else if(draw.fourth.includes(numStr)) hits.push({name:'รางวัลที่ 4', amount:40000});
+    else if(draw.fifth.includes(numStr)) hits.push({name:'รางวัลที่ 5', amount:20000});
+    const f3 = numStr.slice(0,3), b3 = numStr.slice(3,6), b2 = numStr.slice(4,6);
+    if(draw.front3.includes(f3)) hits.push({name:'เลขหน้า 3 ตัว', amount:4000});
+    if(draw.back3.includes(b3)) hits.push({name:'เลขท้าย 3 ตัว', amount:4000});
+    if(draw.back2.includes(b2)) hits.push({name:'เลขท้าย 2 ตัว', amount:2000});
+    return hits;
+  }
+
+  // ---------- DRAW ANIMATION ----------
+  let skipRequested = false;
+  function sleep(ms){ return new Promise(res=>setTimeout(res, skipRequested?0:ms)); }
+
+  document.getElementById('drawSkip').onclick = ()=>{ skipRequested = true; };
+
+  async function runDraw(draw, tickets, buffList){
+    buffList = buffList || [];
+    skipRequested = false;
+    const stagesEl = document.getElementById('stagesContainer');
+    stagesEl.innerHTML = '';
+    const ticketNums = tickets.map(t=>t.digits.join(''));
+
+    if(buffList.length){
+      const tierName = {fifth:'รางวัลที่ 5',fourth:'รางวัลที่ 4',third:'รางวัลที่ 3',second:'รางวัลที่ 2',first:'รางวัลที่ 1'};
+      const tiersHit = [...new Set(buffList.map(e=>tierName[e.tierKey]))].join(', ');
+      const div = document.createElement('div');
+      div.className='buff-banner';
+      div.textContent = `🙏 ได้รับพร ${buffList.length} จุด กำลังทำงานอยู่ที่ ${tiersHit} — จับตาดูเลขสีเขียว/ม่วงระหว่างออกรางวัล!`;
+      stagesEl.appendChild(div);
+    }
+
+    function chipRow(nums, matchSet, tierKey){
+      return nums.map((n,idx)=>{
+        let inner = n;
+        const h = tierKey ? highlightsForNumber(buffList, tierKey, idx) : null;
+        if(h){
+          inner = n.split('').map((ch,i)=> h.positions.includes(i) ? `<span class="${h.cls}">${ch}</span>` : ch).join('');
+        }
+        return `<span class="num-chip ${matchSet.has(n)?'hit':''}">${inner}</span>`;
+      }).join('');
+    }
+
+    async function shortStage(title, arr){
+      const matchSet = new Set(arr.filter(p=>{
+        return ticketNums.some(n=>{
+          if(p.length===3) return n.slice(0,3)===p || n.slice(3,6)===p;
+          if(p.length===2) return n.slice(4,6)===p;
+          return false;
+        });
+      }));
+      const div = document.createElement('div');
+      div.className='stage-block';
+      div.innerHTML = `<div class="stage-name">${title}</div><div class="stage-numbers">${chipRow(arr, matchSet, null)}</div>`;
+      stagesEl.appendChild(div);
+      stagesEl.scrollTop = stagesEl.scrollHeight;
+      await sleep(900);
+    }
+
+    async function listStage(title, arr, tierKey){
+      const matchSet = new Set(arr.filter(n=>ticketNums.includes(n)));
+      const div = document.createElement('div');
+      div.className='stage-block';
+      div.innerHTML = `<div class="stage-name">${title} (${arr.length} รางวัล)</div><div class="stage-numbers">${chipRow(arr, matchSet, tierKey)}</div>`;
+      stagesEl.appendChild(div);
+      stagesEl.scrollTop = stagesEl.scrollHeight;
+      await sleep(1200);
+    }
+
+    async function spinStage(title, arr, tierKey){
+      const div = document.createElement('div');
+      div.className='stage-block';
+      div.innerHTML = `<div class="stage-name">${title}</div><div id="spinHolder"></div>`;
+      stagesEl.appendChild(div);
+      stagesEl.scrollTop = stagesEl.scrollHeight;
+      const holder = div.querySelector('#spinHolder');
+      for(let ni=0; ni<arr.length; ni++){
+        const num = arr[ni];
+        const row = document.createElement('div');
+        row.className='spin-row';
+        holder.appendChild(row);
+        const cells = [];
+        for(let i=0;i<num.length;i++){
+          const c = document.createElement('div');
+          c.className='spin-cell';
+          c.textContent='0';
+          row.appendChild(c);
+          cells.push(c);
+        }
+        for(let i=0;i<num.length;i++){
+          if(!skipRequested){
+            const spins = 6;
+            for(let s=0;s<spins;s++){
+              cells[i].textContent = Math.floor(Math.random()*10);
+              await sleep(45);
+            }
+          }
+          cells[i].textContent = num[i];
+        }
+        if(ticketNums.includes(num)){
+          cells.forEach(c=>{ c.style.borderColor='var(--gold)'; c.style.background='rgba(217,164,65,.18)'; });
+        }
+        const h = tierKey ? highlightsForNumber(buffList, tierKey, ni) : null;
+        if(h){
+          h.positions.forEach(p=> cells[p].classList.add(h.cls));
+        }
+        await sleep(300);
+      }
+      await sleep(400);
+    }
+
+    await shortStage('เลขท้าย 2 ตัว', draw.back2);
+    await shortStage('เลขท้าย 3 ตัว', draw.back3);
+    await shortStage('เลขหน้า 3 ตัว', draw.front3);
+    await listStage('รางวัลที่ 5', draw.fifth, 'fifth');
+    await listStage('รางวัลที่ 4', draw.fourth, 'fourth');
+    await listStage('รางวัลที่ 3', draw.third, 'third');
+    await listStage('รางวัลที่ 2', draw.second, 'second');
+    await spinStage('รางวัลข้างเคียงรางวัลที่ 1', draw.near, 'near');
+    await spinStage('รางวัลที่ 1', [draw.first], 'first');
+
+    await finishGame(draw, tickets, buffList);
+  }
+
+  // ---------- FINISH / RESULT ----------
+  async function finishGame(draw, tickets, buffList){
+    let gross = 0;
+    const perTicket = tickets.map(t=>{
+      const numStr = t.digits.join('');
+      const hits = checkTicket(numStr, draw);
+      const sub = hits.reduce((s,h)=>s+h.amount,0) * t.qty;
+      gross += sub;
+      return { numStr, digits:t.digits, qty:t.qty, hits, sub };
+    });
+    const tax = gross * TAX_RATE;
+    const net = gross - tax;
+    balance += net;
+    await saveBalance();
+
+    const cost = tickets.reduce((s,t)=>s+t.qty*TICKET_PRICE,0);
+    const entry = {
+      date: new Date().toISOString(),
+      tickets: perTicket.map(p=>({num:p.numStr, qty:p.qty})),
+      cost, gross, tax, net,
+      won: gross>0,
+      balanceAfter: balance
+    };
+    history.unshift(entry);
+    await saveHistory();
+    currentGame = null;
+    await saveCurrentGame();
+
+    renderResult(perTicket, gross, tax, net, buffList);
+    showScreen('result');
+  }
+
+  function renderResult(perTicket, gross, tax, net, buffList){
+    buffList = buffList || [];
+    const banner = document.getElementById('resultBanner');
+    const won = gross>0;
+    banner.innerHTML = `<div class="result-banner ${won?'win':'lose'}">
+      <div class="big ${won?'win-text':'lose-text'}">${won?'🎉 ถูกหวย!':'😢 โดนกิน'}</div>
+      <div style="margin-top:6px;font-size:13px;color:var(--text-dim);">${won? 'ยินดีด้วย คุณถูกรางวัล':'งวดนี้ไม่มีเลขไหนถูกรางวัลเลย'}</div>
+    </div>`;
+
+    const ticketsEl = document.getElementById('resultTickets');
+    ticketsEl.innerHTML = perTicket.map((p,idx)=>{
+      const lines = p.hits.length
+        ? p.hits.map(h=>`<div class="prize-line"><span>${h.name} × ${p.qty}</span><b>${fmt(h.amount*p.qty)}</b></div>`).join('')
+        : `<div class="prize-line"><span>ไม่ถูกรางวัล</span><span>—</span></div>`;
+      let numHTML = p.numStr;
+      const h = highlightsForTicket(buffList, idx);
+      if(h.positions.length){
+        numHTML = digitsToHTML(p.digits, h.positions, h.cls);
+      }
+      return `<div class="ticket-result">
+        <div class="tnum">${numHTML} <span style="font-size:11px;color:var(--text-dim);">× ${p.qty} ใบ</span></div>
+        ${lines}
+      </div>`;
+    }).join('');
+
+    document.getElementById('rGross').textContent = fmt(gross);
+    document.getElementById('rTax').textContent = '-' + fmt(tax);
+    document.getElementById('rNet').textContent = fmt(net);
+    const rb = document.getElementById('rBalance');
+    rb.textContent = fmt(balance);
+    rb.style.color = balance<0 ? 'var(--red)' : 'var(--gold-soft)';
+  }
+
+  // ---------- HISTORY ----------
+  function renderHistory(){
+    const el = document.getElementById('historyList');
+    if(history.length===0){
+      el.innerHTML = `<div class="empty-note">ยังไม่มีประวัติการเล่น</div>`;
+      return;
+    }
+    el.innerHTML = history.map(h=>{
+      const d = new Date(h.date);
+      const dateStr = d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'}) + ' ' + d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      const numsStr = h.tickets.map(t=>`${t.num}×${t.qty}`).join(' · ');
+      return `<div class="hist-item">
+        <div class="hist-top">
+          <span class="hist-date">${dateStr}</span>
+          <span class="badge ${h.won?'win':'lose'}">${h.won?'ถูกหวย':'โดนกิน'}</span>
+        </div>
+        <div class="hist-nums">${numsStr}</div>
+        <div class="hist-money">
+          <span>ค่าสลาก: ${fmt(h.cost)}</span>
+          <span>สุทธิ: ${fmt(h.net)}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
