@@ -1,1487 +1,984 @@
 <!DOCTYPE html>
-<html lang="th" class="scroll-smooth">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChemLearn Digital: สถาปัตยกรรมข้อมูลเคมีทั่วไป (L05 - L08)</title>
-    <!-- Tailwind CSS CDN -->
+    <title>สรุปเตรียมสอบเคมี L05-L08</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN -->
+    
+    <!-- Chart.js for Radar Chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- KaTeX CDN for mathematical typesetting -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
 
-    <!-- Embedded Minimal CSS for Chart Container constraints -->
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* Chosen Palette: Warm Scientific Slate & Emerald Teal */
-        /*
-          Primary Background: #f8fafc (Slate 50)
-          Card Background: #ffffff
-          Primary Accent: #0f766e (Teal 700)
-          Secondary Accent: #3b82f6 (Blue 500)
-          Text Primary: #1e293b (Slate 800)
-          Text Muted: #64748b (Slate 500)
-        */
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
         
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 650px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 320px;
-            max-height: 400px;
+        .math-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin: 1rem 0;
+            overflow-x: auto;
         }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 380px;
-            }
+
+        .formula-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .tab-btn.active {
-            border-bottom-color: #0f766e;
-            color: #0f766e;
+        .formula-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
             font-weight: 700;
-            background-color: #f0fdf4;
+            color: #0f172a;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1.25rem;
         }
-        .chapter-pill.active {
-            background-color: #0f766e;
-            color: #ffffff;
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Tab transitions */
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Quiz Styles */
+        .quiz-option {
+            display: flex;
+            align-items: flex-start;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .quiz-option:hover { background-color: #f1f5f9; }
+        .quiz-option input[type="radio"] { margin-top: 0.25rem; margin-right: 0.75rem; }
+        .correct-answer { background-color: #dcfce7 !important; border: 1px solid #86efac; }
+        .wrong-answer { background-color: #fee2e2 !important; border: 1px solid #fca5a5; }
     </style>
+
+    <!-- MathJax Configuration -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            svg: { fontCache: 'global' },
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        console.log('MathJax initial rendering complete');
+                    });
+                }
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+<body class="text-slate-700 antialiased min-h-screen flex flex-col">
 
-    <!-- Chosen Palette: Warm Scientific Slate & Emerald Teal -->
-    <!-- Application Structure Plan:
-         แอปพลิเคชันนี้ออกแบบเป็นหน้าเดียว (SPA) สำหรับนิสิต/นักศึกษาที่ศึกษาวิชาเคมีทั่วไป (L05-L08) 
-         1. Header & Navigation: แถบนำทางเข้าถึง 5 ส่วนหลักของระบบ ได้แก่ ทฤษฎีเชิงลึก, แบบจำลองโต้ตอบ, คลังสูตร LaTeX, โจทย์คำนวณพร้อมวิธีทำละเอียด 10 ข้อ และแบบทดสอบประเมินตนเอง 10 ข้อ
-         2. Section 1 - Core Theory Hub: บทเรียน L05 (ก๊าซ & KMT & ก๊าซจริง), L06 (ของเหลว, ผลึกศาสตร์ Bragg's Law, ยูนิตเซลล์, แผนภาพวัฏภาค), L07 (อุณหพลศาสตร์การละลาย, Like dissolves like, หน่วยความเข้มข้น), L08 (สมบัติคอลลิเกทีฟ, กฎของรออุลต์, ion-pairing, แฟกเตอร์แวนต์โฮฟ) พร้อมตารางเปรียบเทียบประเภทผลึกและตารางแปลงหน่วยความเข้มข้น
-         3. Section 2 - Interactive Chemistry Simulators: ประกอบด้วย 3 สื่อจำลองอินเทอร์แอคทีฟ (Maxwell-Boltzmann speed distribution, Phase diagram explorer H2O vs CO2, Colligative property calculator)
-         4. Section 3 - Expanded Formula Reference Hub: รวบรวมสูตรสมการ LaTeX สมบูรณ์ (รวมสูตรลัดการแปลงความเข้มข้น %w/w, Bragg's Law, ยูนิตเซลล์, Clausius-Clapeyron, Raoult's Law, van 't Hoff factor) ค้นหาได้ทันที
-         5. Section 4 - Worked Problems & Step-by-Step Solutions: รวบรวมโจทย์คำนวณวิเคราะห์จากแบบฝึกหัดจริง 10 ข้อ พร้อมระบบซ่อน/แสดงวิธีทำทีละขั้น
-         6. Section 5 - Self Quiz & Diagnostic Dashboard: แบบทดสอบประเมินความรู้ 10 ข้อ พร้อมกราฟเรดาร์วิเคราะห์คะแนนตามบทเรียนโดย Chart.js และอธิบายคำตอบ
-    -->
-    <!-- Visualization & Content Choices:
-         1. Maxwell-Boltzmann Speed Distribution -> แสดงการกระจายความเร็วโมเลกุล -> Chart.js Canvas Line Chart -> ปรับค่า T, MW, Ea -> Chart.js Canvas
-         2. Phase Diagrams (H2O vs CO2) -> แสดงเส้นแบ่งสถานะและเปรียบเทียบ Slope -> Chart.js Canvas Line Scatter -> สลับระหว่าง น้ำ (Slope ลบ) และ CO2 (Slope บวก) -> Chart.js Canvas
-         3. Crystalline Solids Matrix & Concentration Units Matrix -> เปรียบเทียบสมบัติผลึก 4 ชนิด และสูตรแปลงหน่วยความเข้มข้น -> HTML Responsive Grid/Table + Badges
-         4. Colligative Calculator -> คำนวณความดันไอ จุดเดือด จุดเยือกแข็ง ความดันออสโมติก -> Chart.js Bar Chart + Interactive Form -> Chart.js Canvas
-         5. Worked Problems & Quiz Dashboard -> 10 โจทย์คำนวณ + 10 ข้อสอบควิซ -> Interactive Accordions, Radio Buttons, Chart.js Radar Chart
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-
-    <!-- Top Navigation Banner -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center space-x-3">
-                    <span class="text-2xl">🧪</span>
-                    <div>
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">ChemLearn Digital</h1>
-                        <p class="text-xs text-slate-500 hidden sm:block">แพลตฟอร์มสถาปัตยกรรมข้อมูลเคมีทั่วไป (L05 - L08)</p>
+            <div class="flex flex-col md:flex-row justify-between items-center py-4 border-b border-slate-100">
+                <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                    <div class="bg-indigo-600 p-2 rounded-lg text-white shadow-md">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                     </div>
+                    <h1 class="text-2xl font-bold text-slate-800 tracking-tight">สรุปเคมี L05-L08 สำหรับสอบ</h1>
                 </div>
-                <!-- Main Nav Tabs -->
-                <nav class="flex space-x-1 sm:space-x-2 text-xs sm:text-sm font-medium overflow-x-auto py-2">
-                    <button onclick="switchTab('theory')" id="nav-theory" class="tab-btn active px-3 py-2 rounded-lg transition-colors flex items-center space-x-1">
-                        <span>📖</span><span class="hidden md:inline">มโนทัศน์ทฤษฎี</span><span class="md:hidden">ทฤษฎี</span>
-                    </button>
-                    <button onclick="switchTab('simulators')" id="nav-simulators" class="tab-btn px-3 py-2 rounded-lg transition-colors flex items-center space-x-1">
-                        <span>🧮</span><span class="hidden md:inline">สื่อจำลองโต้ตอบ</span><span class="md:hidden">จำลอง</span>
-                    </button>
-                    <button onclick="switchTab('formulas')" id="nav-formulas" class="tab-btn px-3 py-2 rounded-lg transition-colors flex items-center space-x-1">
-                        <span>📐</span><span class="hidden md:inline">คลังสูตร LaTeX</span><span class="md:hidden">สูตร</span>
-                    </button>
-                    <button onclick="switchTab('problems')" id="nav-problems" class="tab-btn px-3 py-2 rounded-lg transition-colors flex items-center space-x-1">
-                        <span>✍️</span><span class="hidden md:inline">โจทย์คำนวณ (10 ข้อ)</span><span class="md:hidden">โจทย์</span>
-                    </button>
-                    <button onclick="switchTab('quiz')" id="nav-quiz" class="tab-btn px-3 py-2 rounded-lg transition-colors flex items-center space-x-1">
-                        <span>🎯</span><span class="hidden md:inline">ควิซประเมินผล (10 ข้อ)</span><span class="md:hidden">ควิซ</span>
-                    </button>
-                </nav>
             </div>
+            <!-- Tabs -->
+            <nav class="flex space-x-2 md:space-x-6 overflow-x-auto py-1" id="tabs-nav">
+                <button onclick="switchTab('tab-formulas', this)" class="nav-btn active px-3 py-4 text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    สรุปสูตร (Formulas)
+                </button>
+                <button onclick="switchTab('tab-l05', this)" class="nav-btn px-3 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">L05: แก๊ส</button>
+                <button onclick="switchTab('tab-l06', this)" class="nav-btn px-3 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">L06: ของเหลว</button>
+                <button onclick="switchTab('tab-l07', this)" class="nav-btn px-3 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">L07: ของแข็ง</button>
+                <button onclick="switchTab('tab-l08', this)" class="nav-btn px-3 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">L08: สารละลาย</button>
+                <button onclick="switchTab('tab-problems', this)" class="nav-btn px-3 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors">โจทย์ & เฉลย</button>
+                <button onclick="switchTab('tab-quiz', this)" class="nav-btn px-3 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    แบบทดสอบ
+                </button>
+            </nav>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- ================= Tab 1: Formulas (Default Active) ================= -->
+        <div id="tab-formulas" class="tab-content active">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-900">สรุปสูตรเคมี L05 - L08</h2>
+                <p class="text-slate-500 mt-2 text-lg">รวมสูตรทั้งหมดที่ต้องใช้สอบแบบครบถ้วนในหน้าเดียว</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- L05 Gases Formulas -->
+                <div class="formula-card border-t-4 border-t-blue-500">
+                    <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm mr-2">L05</span> แก๊ส (Gases)</h3>
+                    <ul class="space-y-4 text-slate-700">
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">กฎของบอยล์ (T, n คงที่)</span>
+                            <span class="text-lg">$$P_1V_1 = P_2V_2$$</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">กฎของชาร์ลส์ (P, n คงที่)</span>
+                            <span class="text-lg">$$\frac{V_1}{T_1} = \frac{V_2}{T_2}$$</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">กฎรวมแก๊ส</span>
+                            <span class="text-lg">$$\frac{P_1V_1}{T_1} = \frac{P_2V_2}{T_2}$$</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">กฎแก๊สอุดมคติ (Ideal Gas)</span>
+                            <span class="text-lg">$$PV = nRT$$</span>
+                            <span class="text-xs text-slate-500 text-center -mt-2">($R = 0.08206 \text{ L atm mol}^{-1} \text{ K}^{-1}$)</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">ความหนาแน่น & มวลโมเลกุล (d, MW)</span>
+                            <span class="text-lg">$$MW = \frac{dRT}{P}$$</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">กฎการแพร่ของเกรแฮม</span>
+                            <span class="text-lg">$$\frac{r_1}{r_2} = \sqrt{\frac{MW_2}{MW_1}} = \sqrt{\frac{d_2}{d_1}}$$</span>
+                        </li>
+                        <li class="flex flex-col bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <span class="font-semibold text-sm text-slate-600">สมการแวนเดอร์วาลส์ (แก๊สจริง)</span>
+                            <span class="text-md">$$\left(P + \frac{an^2}{V^2}\right)(V - nb) = nRT$$</span>
+                        </li>
+                    </ul>
+                </div>
 
-        <!-- SECTION 1: CORE THEORY HUB -->
-        <section id="section-theory" class="space-y-6">
-            <!-- Introduction Banner -->
-            <div class="bg-gradient-to-r from-teal-800 to-slate-800 text-white rounded-2xl p-6 shadow-md">
-                <div class="max-w-3xl">
-                    <span class="inline-block px-3 py-1 bg-teal-600/50 text-teal-100 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">Information Architecture</span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold mb-2">แก่นทฤษฎีเคมีทั่วไปเชิงลึก (General Chemistry L05-L08)</h2>
-                    <p class="text-slate-200 text-sm sm:text-base leading-relaxed">
-                        ศูนย์รวมความรู้เคมีระดับอุดมศึกษา รวบรวมแนวคิดหลักตั้งแต่พฤติกรรมก๊าซอุดมคติและก๊าซจริง (L05), แรงยึดเหนี่ยว สมบัติของเหลว ผลึกศาสตร์ X-ray และยูนิตเซลล์ (L06), อุณหพลศาสตร์การเกิดสารละลายและหน่วยความเข้มข้น (L07), ไปจนถึงสมบัติคอลลิเกทีฟ กฎของรออุลต์ และปรากฏการณ์ Ion-pairing (L08)
-                    </p>
+                <!-- L06 Liquids Formulas -->
+                <div class="formula-card border-t-4 border-t-teal-500">
+                    <h3 class="text-xl font-bold text-teal-700 mb-4 flex items-center"><span class="bg-teal-100 text-teal-800 px-2 py-1 rounded text-sm mr-2">L06</span> ของเหลวและความร้อน (Liquids)</h3>
+                    <ul class="space-y-4 text-slate-700">
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">สมการคลอเซียส-คลาเปย์รอน (ความดันไอ)</span>
+                            <span class="text-lg">$$\ln\left(\frac{P_2}{P_1}\right) = \frac{\Delta H_{\text{vap}}}{R}\left(\frac{1}{T_1} - \frac{1}{T_2}\right)$$</span>
+                            <span class="text-xs text-slate-500 text-center -mt-2">($R = 8.314 \text{ J/(mol K)}$)</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">ปริมาณความร้อนเมื่ออุณหภูมิเปลี่ยน (สถานะเดิม)</span>
+                            <span class="text-lg">$$Q = mc\Delta T$$</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">ปริมาณความร้อนเมื่อเปลี่ยนสถานะ (T คงที่)</span>
+                            <span class="text-lg">$$Q = mL \quad \text{หรือ} \quad Q = n\Delta H$$</span>
+                            <span class="text-xs text-slate-500 text-center -mt-2">(เช่น $\Delta H_{\text{fus}}$ หรือ $\Delta H_{\text{vap}}$)</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- L07 Solids Formulas -->
+                <div class="formula-card border-t-4 border-t-purple-500">
+                    <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center"><span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm mr-2">L07</span> ของแข็ง (Solids)</h3>
+                    <ul class="space-y-4 text-slate-700">
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">กฎของแบร็กก์ (การเลี้ยวเบน X-ray)</span>
+                            <span class="text-lg">$$n\lambda = 2d\sin\theta$$</span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="font-semibold text-sm text-slate-500">ความหนาแน่นของผลึก (d)</span>
+                            <span class="text-lg">$$d = \frac{Z \cdot MW}{N_A \cdot a^3}$$</span>
+                            <span class="text-xs text-slate-500 text-center -mt-2">($Z$=จน.อะตอม, $N_A=6.02\times 10^{23}$, $a$=ความยาวขอบเซลล์)</span>
+                        </li>
+                        <li class="flex flex-col bg-purple-50 p-3 rounded-lg border border-purple-100 mt-2">
+                            <span class="font-semibold text-sm text-purple-800 mb-2">โครงสร้าง Unit Cell (Cubic)</span>
+                            <div class="grid grid-cols-3 gap-2 text-sm text-center">
+                                <div><b>SC (Z=1)</b><br>$a = 2r$</div>
+                                <div><b>BCC (Z=2)</b><br>$a = \frac{4r}{\sqrt{3}}$</div>
+                                <div><b>FCC (Z=4)</b><br>$a = \sqrt{8}r$</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- L08 Solutions Formulas -->
+                <div class="formula-card border-t-4 border-t-emerald-500">
+                    <h3 class="text-xl font-bold text-emerald-700 mb-4 flex items-center"><span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-sm mr-2">L08</span> สารละลาย (Solutions)</h3>
+                    <ul class="space-y-4 text-slate-700">
+                        <li class="grid grid-cols-2 gap-2">
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-xs text-slate-500">โมลาริตี (M)</span>
+                                <span class="text-md">$$M = \frac{\text{mol}}{\text{L (สารละลาย)}}$$</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="font-semibold text-xs text-slate-500">โมแลลิตี (m)</span>
+                                <span class="text-md">$$m = \frac{\text{mol}}{\text{kg (ตัวทำละลาย)}}$$</span>
+                            </div>
+                        </li>
+                        <li class="flex flex-col bg-slate-50 p-2 rounded">
+                            <span class="font-semibold text-sm text-slate-600">กฎของราอูลต์ (ความดันไอสารละลาย)</span>
+                            <span class="text-lg">$$P_{\text{soln}} = X_{\text{solvent}} P^\circ_{\text{solvent}}$$</span>
+                        </li>
+                        <li class="flex flex-col bg-slate-50 p-2 rounded">
+                            <span class="font-semibold text-sm text-slate-600">จุดเดือดสูงขึ้น & จุดเยือกแข็งต่ำลง</span>
+                            <span class="text-lg">$$\Delta T_b = i \cdot K_b \cdot m$$</span>
+                            <span class="text-lg">$$\Delta T_f = i \cdot K_f \cdot m$$</span>
+                        </li>
+                        <li class="flex flex-col bg-slate-50 p-2 rounded">
+                            <span class="font-semibold text-sm text-slate-600">ความดันออสโมติก</span>
+                            <span class="text-lg">$$\Pi = i \cdot M \cdot R \cdot T$$</span>
+                        </li>
+                        <li class="text-xs text-emerald-700 font-semibold bg-emerald-50 p-2 rounded text-center">
+                            *อย่าลืมคูณ $i$ (Van't Hoff factor) สำหรับสารประกอบไอออนิกเสมอ
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= Tab 2: L05 Gases ================= -->
+        <div id="tab-l05" class="tab-content bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-3xl font-bold text-slate-900 mb-6">L05: แก๊ส (Gases)</h2>
+            
+            <h3 class="section-title">1. สมบัติทั่วไปและทฤษฎีจลน์ของแก๊ส</h3>
+            <ul class="list-disc pl-6 space-y-2 mb-6 text-lg text-slate-700">
+                <li>อนุภาคอยู่ห่างกันมาก แรงดึงดูดระหว่างโมเลกุลน้อยมาก</li>
+                <li>ปริมาตรและรูปร่างไม่แน่นอน เปลี่ยนแปลงตามภาชนะที่บรรจุ สามารถบีบอัดได้ (Compressibility) และมีความหนาแน่นต่ำ ขยายตัวได้เมื่อได้รับความร้อน (Expandability)</li>
+                <li><b>ทฤษฎีจลน์ของแก๊ส (Kinetic Molecular Theory):</b> โมเลกุลแก๊สมีขนาดเล็กมากจนถือว่าปริมาตรเป็นศูนย์ ไม่มีแรงดึงดูดหรือผลักกัน การชนกันเป็นการชนแบบยืดหยุ่นสมบูรณ์ (พลังงานจลน์รวมคงที่) พลังงานจลน์เฉลี่ยแปรผันตรงกับอุณหภูมิสัมบูรณ์ (เคลวิน)</li>
+            </ul>
+
+            <h3 class="section-title">2. แก๊สอุดมคติ (Ideal) vs แก๊สจริง (Real)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-blue-50 p-5 rounded-lg border border-blue-100">
+                    <h4 class="font-bold text-lg text-blue-800 mb-2">Ideal Gas</h4>
+                    <p class="text-slate-700">เป็นไปตามกฎแก๊สสมบูรณ์ที่ทุกสภาวะ โมเลกุลไม่มีปริมาตรและไม่มีแรงยึดเหนี่ยวต่อกัน</p>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-lg border border-slate-200">
+                    <h4 class="font-bold text-lg text-slate-800 mb-2">Real Gas</h4>
+                    <p class="text-slate-700">แก๊สจริงจะเบี่ยงเบนจากอุดมคติมากที่สุดที่ <b>อุณหภูมิต่ำ และ ความดันสูง</b> เพราะโมเลกุลจะอยู่ใกล้กันจนแรงยึดเหนี่ยวและปริมาตรของโมเลกุลส่งผลกระทบ</p>
+                    <div class="mt-3 p-3 bg-white border border-slate-200 rounded text-sm text-slate-600">
+                        <b>สมการ Van der Waals:</b> ปรับแก้ $P$ ด้วย $\frac{an^2}{V^2}$ (แก้แรงดึงดูด) และปรับ $V$ ด้วย $nb$ (แก้ปริมาตรโมเลกุล)
+                    </div>
                 </div>
             </div>
 
-            <!-- Chapter Filter Pills -->
-            <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
-                <button onclick="filterTheory('all')" id="pill-all" class="chapter-pill active px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all border border-slate-300">
-                    ทั้งหมด (L05-L08)
-                </button>
-                <button onclick="filterTheory('l05')" id="pill-l05" class="chapter-pill px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all border border-slate-300">
-                    L05: ก๊าซ ทฤษฎีจลน์ & ก๊าซจริง
-                </button>
-                <button onclick="filterTheory('l06')" id="pill-l06" class="chapter-pill px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all border border-slate-300">
-                    L06: ของเหลว ผลึกศาสตร์ & แผนภาพวัฏภาค
-                </button>
-                <button onclick="filterTheory('l07')" id="pill-l07" class="chapter-pill px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all border border-slate-300">
-                    L07: สารละลาย อุณหพลศาสตร์ & ความเข้มข้น
-                </button>
-                <button onclick="filterTheory('l08')" id="pill-l08" class="chapter-pill px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all border border-slate-300">
-                    L08: คอลลิเกทีฟ กฎของรออุลต์ & อิเล็กโทรไลต์
-                </button>
+            <h3 class="section-title">3. ความดันย่อยของดาลตัน (Dalton's Law of Partial Pressures)</h3>
+            <p class="text-lg text-slate-700 mb-4">ในแก๊สผสมที่ไม่มีปฏิกิริยากัน ความดันรวมเท่ากับผลรวมของความดันย่อยของแก๊สแต่ละชนิด</p>
+            <div class="math-box text-center">
+                $$P_{\text{total}} = P_1 + P_2 + P_3 + \dots$$
+                <p class="text-sm mt-2 text-slate-600">ความดันย่อยสามารถหาได้จากเศษส่วนโมล: $P_i = X_i \cdot P_{\text{total}}$</p>
+            </div>
+        </div>
+
+        <!-- ================= Tab 3: L06 Liquids ================= -->
+        <div id="tab-l06" class="tab-content bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-3xl font-bold text-slate-900 mb-6">L06: ของเหลว (Liquids)</h2>
+
+            <h3 class="section-title">1. แรงยึดเหนี่ยวระหว่างโมเลกุล (Intermolecular Forces)</h3>
+            <ul class="list-disc pl-6 space-y-3 mb-6 text-lg text-slate-700">
+                <li><b>แรงลอนดอน (London Dispersion):</b> มีในทุกโมเลกุล เกิดจากขั้วชั่วคราว เด่นมากในสารไม่มีขั้ว แปรผันตามมวลและขนาดโมเลกุล</li>
+                <li><b>แรงดึงดูดระหว่างขั้ว (Dipole-Dipole):</b> เกิดในโมเลกุลมีขั้ว ดึงดูดกันทางไฟฟ้า</li>
+                <li><b>พันธะไฮโดรเจน (Hydrogen Bonding):</b> แข็งแรงที่สุดในกลุ่ม เกิดเมื่อ H สร้างพันธะตรงกับ F, O, หรือ N เท่านั้น (เช่น $H_2O, NH_3, HF$) ทำให้มีจุดเดือดสูงผิดปกติ</li>
+                <li><b>แรงไอออน-ไดโพล (Ion-Dipole):</b> เกิดเมื่อสารประกอบไอออนิกละลายในตัวทำละลายมีขั้ว (เช่น เกลือละลายน้ำ)</li>
+            </ul>
+
+            <h3 class="section-title">2. สมบัติเฉพาะของของเหลว</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-slate-50 p-5 rounded-lg">
+                    <h4 class="font-bold text-slate-800 mb-2">ความตึงผิวและความหนืด</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-slate-700">
+                        <li><b>ความตึงผิว (Surface Tension):</b> แรงต้านการเพิ่มพื้นที่ผิว ของเหลวพยายามมีรูปทรงกลม</li>
+                        <li><b>ความหนืด (Viscosity):</b> ความต้านทานการไหล แรงยึดเหนี่ยวมาก $\rightarrow$ ความหนืดมาก</li>
+                    </ul>
+                </div>
+                <div class="bg-slate-50 p-5 rounded-lg">
+                    <h4 class="font-bold text-slate-800 mb-2">Capillary Action</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm">
+                        <li><b>น้ำในหลอดแก้ว:</b> แรง Adhesive (ยึดติดผนัง) > Cohesive (เชื่อมแน่น) ผิวจึงโค้งเว้าลง (Meniscus เว้า)</li>
+                        <li><b>ปรอทในหลอดแก้ว:</b> แรง Cohesive > Adhesive ผิวจึงโค้งนูนขึ้น</li>
+                    </ul>
+                </div>
             </div>
 
-            <!-- Theory Cards Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="theory-cards-container">
-                
-                <!-- L05 Card -->
-                <div class="theory-card l05 bg-white rounded-xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="px-2.5 py-1 bg-teal-100 text-teal-800 rounded-md text-xs font-bold">บทเรียน L05</span>
-                        <span class="text-xs text-slate-400">Gases & Kinetic Molecular Theory</span>
+            <h3 class="section-title">3. กราฟสำคัญ (Phase Diagram & Heating Curve)</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Phase Diagram SVG -->
+                <div class="bg-white p-4 border border-slate-200 rounded-xl shadow-sm text-center">
+                    <h4 class="font-bold text-lg text-slate-800 mb-2">Phase Diagram ของน้ำ ($H_2O$)</h4>
+                    <p class="text-sm text-slate-500 mb-4">สังเกตเส้น Solid-Liquid มีความชันเป็นลบ (น้ำแข็งความหนาแน่นน้อยกว่าน้ำ)</p>
+                    <svg viewBox="0 0 500 400" class="w-full h-auto max-w-sm mx-auto font-sans">
+                        <line x1="50" y1="350" x2="480" y2="350" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+                        <line x1="50" y1="350" x2="50" y2="20" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+                        <text x="450" y="380" font-size="14" fill="#475569">อุณหภูมิ (T)</text>
+                        <text x="10" y="40" font-size="14" fill="#475569" transform="rotate(-90, 20, 150)">ความดัน (P)</text>
+                        <!-- Lines -->
+                        <path d="M 50 350 Q 150 300 200 250" fill="none" stroke="#64748b" stroke-width="3" />
+                        <line x1="200" y1="250" x2="160" y2="50" stroke="#3b82f6" stroke-width="3" />
+                        <path d="M 200 250 Q 300 150 420 80" fill="none" stroke="#ef4444" stroke-width="3" />
+                        <!-- Points -->
+                        <circle cx="200" cy="250" r="5" fill="#10b981" />
+                        <text x="215" y="260" font-size="14" font-weight="bold" fill="#059669">Triple Point</text>
+                        <circle cx="420" cy="80" r="5" fill="#f59e0b" />
+                        <text x="430" y="75" font-size="14" font-weight="bold" fill="#d97706">Critical Point</text>
+                        <!-- Regions -->
+                        <text x="110" y="150" font-size="18" font-weight="bold" fill="#60a5fa">Solid (ของแข็ง)</text>
+                        <text x="240" y="120" font-size="18" font-weight="bold" fill="#3b82f6">Liquid (ของเหลว)</text>
+                        <text x="320" y="300" font-size="18" font-weight="bold" fill="#f87171">Gas (แก๊ส)</text>
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+                            </marker>
+                        </defs>
+                    </svg>
+                    <div class="mt-4 text-xs text-left text-slate-600 bg-slate-50 p-3 rounded">
+                        <b>Triple Point:</b> จุดที่ 3 สถานะอยู่ร่วมกันในสมดุล<br>
+                        <b>Critical Point:</b> จุดวิกฤต เหนือจุดนี้จะแยกของเหลวและแก๊สไม่ได้ กลายเป็น Supercritical fluid
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900">ทฤษฎีจลน์ของก๊าซ พฤติกรรมก๊าซจริง และการแพร่ผ่าน</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        ** Kinetic Molecular Theory (KMT) ** กำหนดสมมติฐาน 5 ข้อ: (1) อนุภาคมีขนาดเล็กมากจนปริมาตรเป็นศูนย์เมื่อเทียบกับภาชนะ (2) เคลื่อนที่เป็นเส้นตรงสุ่ม (3) ไม่มีแรงดึงดูด/ผลักกัน (4) การชนแบบยืดหยุ่นสมบูรณ์ (Elastic Collision) พลังงานจลน์รวมคงที่ (5) พลังงานจลน์เฉลี่ยขึ้นกับอุณหภูมิสัมบูรณ์ ($E_k = \frac{3}{2}RT$) เท่านั้น
-                    </p>
-                    <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs space-y-2">
-                        <div class="font-semibold text-slate-800">📌 ประเด็นการเบี่ยงเบนของก๊าซจริง (Real Gas Deviations):</div>
-                        <ul class="list-disc list-inside text-slate-600 space-y-1">
-                            <li>**สภาวะที่เบี่ยงเบนมากที่สุด:** ความดันสูงมาก (High $P$) และ อุณหภูมิต่ำมาก (Low $T$)</li>
-                            <li>**สาเหตุการเบี่ยงเบน:** โมเลกุลก๊าซจริงมีปริมาตรจริง ($V_{real} > V_{ideal}$) และมีแรงดึงดูดระหว่างโมเลกุล ($P_{real} < P_{ideal}$)</li>
-                            <li>**สมการฟานเดอร์วาลส์:** $\left( P + \frac{an^2}{V^2} \right)(V - nb) = nRT$ โดย $a$ แก้ไขแรงดึงดูด และ $b$ แก้ไขปริมาตรโมเลกุล</li>
-                            <li>**กฎการแพร่ผ่านของเกรแฮม (Graham's Law):** อัตราการแพร่ผ่านแปรผกผันกับรากที่สองของมวลโมเลกุล $\frac{r_1}{r_2} = \sqrt{\frac{MW_2}{MW_1}} = \frac{t_2}{t_1}$</li>
+                </div>
+
+                <!-- Heating Curve SVG -->
+                <div class="bg-white p-4 border border-slate-200 rounded-xl shadow-sm text-center">
+                    <h4 class="font-bold text-lg text-slate-800 mb-2">เส้นโค้งการให้ความร้อน (Heating Curve)</h4>
+                    <p class="text-sm text-slate-500 mb-4">แสดงการเปลี่ยนอุณหภูมิและสถานะเมื่อได้รับความร้อน</p>
+                    <svg viewBox="0 0 500 400" class="w-full h-auto max-w-sm mx-auto font-sans">
+                        <line x1="50" y1="350" x2="480" y2="350" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+                        <line x1="50" y1="350" x2="50" y2="20" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" />
+                        <text x="380" y="380" font-size="14" fill="#475569">ความร้อนที่ให้ (Heat)</text>
+                        <text x="10" y="40" font-size="14" fill="#475569" transform="rotate(-90, 20, 150)">อุณหภูมิ (T)</text>
+                        <!-- Graph Lines -->
+                        <line x1="50" y1="300" x2="120" y2="250" stroke="#3b82f6" stroke-width="3" />
+                        <line x1="120" y1="250" x2="220" y2="250" stroke="#f59e0b" stroke-width="4" stroke-dasharray="5,5" />
+                        <line x1="220" y1="250" x2="300" y2="100" stroke="#3b82f6" stroke-width="3" />
+                        <line x1="300" y1="100" x2="420" y2="100" stroke="#ef4444" stroke-width="4" stroke-dasharray="5,5" />
+                        <line x1="420" y1="100" x2="470" y2="40" stroke="#3b82f6" stroke-width="3" />
+                        <!-- Labels -->
+                        <text x="55" y="270" font-size="12" fill="#1e40af">ของแข็ง</text>
+                        <text x="130" y="240" font-size="12" font-weight="bold" fill="#d97706">หลอมเหลว (T คงที่)</text>
+                        <text x="210" y="180" font-size="12" fill="#1e40af" transform="rotate(-62, 260, 175)">ของเหลว</text>
+                        <text x="320" y="90" font-size="12" font-weight="bold" fill="#b91c1c">กลายเป็นไอ (T คงที่)</text>
+                        <text x="435" y="60" font-size="12" fill="#1e40af">แก๊ส</text>
+                        <!-- Reference Lines -->
+                        <line x1="40" y1="250" x2="50" y2="250" stroke="#94a3b8" />
+                        <text x="15" y="255" font-size="12" fill="#64748b">จุดเยือกแข็ง</text>
+                        <line x1="40" y1="100" x2="50" y2="100" stroke="#94a3b8" />
+                        <text x="15" y="105" font-size="12" fill="#64748b">จุดเดือด</text>
+                    </svg>
+                    <div class="mt-4 text-xs text-left text-slate-600 bg-slate-50 p-3 rounded">
+                        <b>ช่วงอุณหภูมิเปลี่ยน (เส้นเฉียง):</b> ใช้สมการ $Q = mc\Delta T$<br>
+                        <b>ช่วงเปลี่ยนสถานะ (เส้นประแนวนอน):</b> T คงที่ ใช้สมการ $Q = mL$ (ความร้อนแฝง)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= Tab 4: L07 Solids ================= -->
+        <div id="tab-l07" class="tab-content bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-3xl font-bold text-slate-900 mb-6">L07: ของแข็ง (Solids)</h2>
+
+            <h3 class="section-title">1. ประเภทของแข็งผลึก (Crystalline Solids)</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="bg-blue-50 p-4 rounded border border-blue-200">
+                    <h4 class="font-bold text-blue-800">1. ไอออนิก (Ionic)</h4>
+                    <p class="text-sm mt-2 text-slate-700">ไอออนบวก/ลบ ยึดด้วยแรงทางไฟฟ้า จุดหลอมเหลวสูง เปราะ แตกง่าย เช่น $NaCl$</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded border border-green-200">
+                    <h4 class="font-bold text-green-800">2. โมเลกุล (Molecular)</h4>
+                    <p class="text-sm mt-2 text-slate-700">ยึดด้วยแรงลอนดอน/ไดโพล/H-bond อ่อนนุ่ม จุดหลอมเหลวต่ำ เช่น $H_2O(s), CO_2(s)$</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded border border-purple-200">
+                    <h4 class="font-bold text-purple-800">3. โครงร่างตาข่าย (Covalent Network)</h4>
+                    <p class="text-sm mt-2 text-slate-700">ยึดด้วยพันธะโคเวเลนต์แบบ 3 มิติ แข็งมาก จุดหลอมเหลวสูงมาก เช่น เพชร, กราไฟต์</p>
+                </div>
+                <div class="bg-orange-50 p-4 rounded border border-orange-200">
+                    <h4 class="font-bold text-orange-800">4. โลหะ (Metallic)</h4>
+                    <p class="text-sm mt-2 text-slate-700">ไอออนบวกในทะเลอิเล็กตรอน นำความร้อน/ไฟฟ้าได้ดี ตีเป็นแผ่นได้ เช่น $Fe, Cu, Au$</p>
+                </div>
+            </div>
+
+            <h3 class="section-title">2. โครงสร้างหน่วยเซลล์ (Unit Cells)</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-slate-200 mb-6 text-sm md:text-base">
+                    <thead class="bg-slate-100 text-slate-700">
+                        <tr>
+                            <th class="py-3 px-4 border-b text-left">ชนิดของเซลล์ (Cubic)</th>
+                            <th class="py-3 px-4 border-b text-center">จำนวนอะตอม (Z)</th>
+                            <th class="py-3 px-4 border-b text-center">ความสัมพันธ์ $a$ กับ $r$</th>
+                            <th class="py-3 px-4 border-b text-center">Packing Efficiency</th>
+                            <th class="py-3 px-4 border-b text-center">Coordination No. (CN)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="py-3 px-4 font-semibold">Simple Cubic (SC)</td>
+                            <td class="py-3 px-4 text-center text-blue-600 font-bold">1</td>
+                            <td class="py-3 px-4 text-center">$a = 2r$</td>
+                            <td class="py-3 px-4 text-center">52%</td>
+                            <td class="py-3 px-4 text-center">6</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="py-3 px-4 font-semibold">Body-Centered (BCC)</td>
+                            <td class="py-3 px-4 text-center text-blue-600 font-bold">2</td>
+                            <td class="py-3 px-4 text-center">$a = \frac{4r}{\sqrt{3}}$</td>
+                            <td class="py-3 px-4 text-center">68%</td>
+                            <td class="py-3 px-4 text-center">8</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="py-3 px-4 font-semibold">Face-Centered (FCC)</td>
+                            <td class="py-3 px-4 text-center text-blue-600 font-bold">4</td>
+                            <td class="py-3 px-4 text-center">$a = \sqrt{8}r$</td>
+                            <td class="py-3 px-4 text-center">74%</td>
+                            <td class="py-3 px-4 text-center">12</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-sm text-slate-500 mb-6"><i>*การคำนวณจำนวนอะตอมใน Cell: มุม = $1/8$, หน้า = $1/2$, ขอบ = $1/4$, ตรงกลาง (Body) = $1$</i></p>
+
+            <h3 class="section-title">3. ตำหนิในผลึก (Lattice Defects)</h3>
+            <ul class="list-disc pl-6 space-y-2 text-lg text-slate-700">
+                <li><b>Vacancy:</b> ตำแหน่งว่าง อะตอมหายไปจากที่ควรจะอยู่ ทำให้ความหนาแน่นลดลง</li>
+                <li><b>Interstitial:</b> มีอะตอมขนาดเล็กแทรกอยู่ตามช่องว่าง (Hole) ระหว่างอะตอมหลัก (เช่น C แทรกใน Fe เป็นเหล็กกล้า)</li>
+                <li><b>Substitutional:</b> อะตอมชนิดอื่นมาแทนที่ตำแหน่งอะตอมหลัก (ต้องมีขนาดใกล้เคียงกัน เช่น ทองเหลือง หรือการทำสารกึ่งตัวนำ Doping p-type / n-type)</li>
+            </ul>
+        </div>
+
+        <!-- ================= Tab 5: L08 Solutions ================= -->
+        <div id="tab-l08" class="tab-content bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-3xl font-bold text-slate-900 mb-6">L08: สารละลาย (Solutions)</h2>
+
+            <h3 class="section-title">1. อุณหพลศาสตร์ของการละลาย (Thermodynamics)</h3>
+            <p class="mb-3 text-lg text-slate-700">กระบวนการเกิดสารละลายแบ่งเป็น 3 ขั้นตอนหลัก:</p>
+            <ol class="list-decimal pl-6 space-y-2 mb-4 bg-slate-50 p-4 rounded-lg text-slate-700 border border-slate-200">
+                <li><b>แยกอนุภาคตัวทำละลาย</b>ออกจากกัน ( $\Delta H_1 > 0$ , ดูดความร้อน)</li>
+                <li><b>แยกอนุภาคตัวถูกละลาย</b>ออกจากกัน ( $\Delta H_2 > 0$ , ดูดความร้อน)</li>
+                <li><b>การเกิด Solvation/Hydration</b> ตัวทำละลายล้อมรอบตัวถูกละลาย ( $\Delta H_3 < 0$ , คายความร้อน)</li>
+            </ol>
+            <div class="math-box">
+                $$\Delta H_{\text{soln}} = \Delta H_1 + \Delta H_2 + \Delta H_3$$
+                <p class="text-sm text-slate-700 mt-2">หาก $|\Delta H_3| > (\Delta H_1 + \Delta H_2)$ สุทธิแล้วจะเป็น <b>การละลายแบบคายความร้อน (Exothermic)</b> อุณหภูมิสารละลายจะสูงขึ้น</p>
+            </div>
+
+            <h3 class="section-title">2. กฎของเฮนรี (Henry's Law)</h3>
+            <p class="mb-4 text-lg text-slate-700">การละลายของแก๊สในของเหลวจะแปรผันตรงกับความดันของแก๊สเหนือของเหลวนั้น (ยิ่งอัดความดัน แก๊สยิ่งละลายดี แต่ถ้าอุณหภูมิสูง แก๊สจะละลายได้น้อยลง)</p>
+            <div class="math-box text-center">
+                $$S = kP \quad \text{หรือในการเปรียบเทียบสภาวะ: } \quad \frac{S_1}{P_1} = \frac{S_2}{P_2}$$
+            </div>
+
+            <h3 class="section-title">3. สมบัติคอลลิเกตีฟ (Colligative Properties)</h3>
+            <p class="mb-4 text-lg text-slate-700">เป็นสมบัติที่ขึ้นอยู่กับ <b>"จำนวนอนุภาค"</b> ของตัวถูกละลายเท่านั้น ไม่ขึ้นกับชนิดของสาร (อย่าลืมคูณด้วย Van't Hoff factor $i$ สำหรับสารประกอบไอออนิก)</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="border border-slate-200 p-4 rounded-lg bg-white shadow-sm">
+                    <h4 class="font-bold text-slate-800 border-b pb-2 mb-3">1. ความดันไอของสารละลายลดลง (Raoult's Law)</h4>
+                    <p class="text-sm text-slate-600 mb-2">ความดันไอของสารละลายจะต่ำกว่าตัวทำละลายบริสุทธิ์เสมอ</p>
+                    <div class="text-center bg-slate-50 p-2 rounded">
+                        $$P_{\text{soln}} = X_{\text{solvent}} \cdot P^\circ_{\text{solvent}}$$
+                    </div>
+                </div>
+                <div class="border border-slate-200 p-4 rounded-lg bg-white shadow-sm">
+                    <h4 class="font-bold text-slate-800 border-b pb-2 mb-3">2. จุดเดือดเพิ่มขึ้น (Boiling Point Elevation)</h4>
+                    <div class="text-center bg-slate-50 p-2 rounded">
+                        $$\Delta T_b = i \cdot K_b \cdot m$$
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2 text-center">จุดเดือดใหม่ = จุดเดือดเดิม + $\Delta T_b$</p>
+                </div>
+                <div class="border border-slate-200 p-4 rounded-lg bg-white shadow-sm">
+                    <h4 class="font-bold text-slate-800 border-b pb-2 mb-3">3. จุดเยือกแข็งลดลง (Freezing Point Depression)</h4>
+                    <div class="text-center bg-slate-50 p-2 rounded">
+                        $$\Delta T_f = i \cdot K_f \cdot m$$
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2 text-center">จุดเยือกแข็งใหม่ = จุดเยือกแข็งเดิม - $\Delta T_f$</p>
+                </div>
+                <div class="border border-slate-200 p-4 rounded-lg bg-white shadow-sm">
+                    <h4 class="font-bold text-slate-800 border-b pb-2 mb-3">4. ความดันออสโมติก (Osmotic Pressure)</h4>
+                    <div class="text-center bg-slate-50 p-2 rounded">
+                        $$\Pi = i \cdot M \cdot R \cdot T$$
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2 text-center">ใช้ $M$ (Molarity, mol/L)</p>
+                </div>
+            </div>
+            
+            <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200 text-indigo-900">
+                <span class="font-bold">การหาค่า Van't Hoff factor ($i$):</span><br>
+                - โคเวเลนต์/นอนอิเล็กโทรไลต์ (เช่น กลูโคส, ยูเรีย, เมทานอล) $\rightarrow i = 1$<br>
+                - แตกตัว 2 ไอออน (เช่น $NaCl \rightarrow Na^+ + Cl^-$) $\rightarrow i = 2$<br>
+                - แตกตัว 3 ไอออน (เช่น $MgCl_2 \rightarrow Mg^{2+} + 2Cl^-$) $\rightarrow i = 3$
+            </div>
+        </div>
+
+        <!-- ================= Tab 6: Problems & Solutions ================= -->
+        <div id="tab-problems" class="tab-content bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-3xl font-bold text-slate-900 mb-6">โจทย์ & เฉลยสำหรับฝึกคำนวณ</h2>
+            
+            <div class="space-y-6">
+                <!-- Problem 1 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex items-start">
+                        <span class="font-bold text-blue-600 mr-3 text-lg">Q1</span>
+                        <div class="text-slate-800 text-lg flex-1">
+                            <b>(L05 แก๊ส)</b> ทรงกระบอกปริมาตร $12.0 \text{ L}$ บรรจุอาร์กอนที่ความดัน $57.8 \text{ atm}$ อุณหภูมิ $24^{\circ}\text{C}$ ต้องการบรรจุใส่หลอดไฟขนาด $158 \text{ mL}$ ที่ความดัน $3.00 \text{ torr}$ อุณหภูมิ $21^{\circ}\text{C}$ จะบรรจุหลอดไฟได้กี่ดวง?
+                        </div>
+                    </div>
+                    <div class="px-5 py-3 bg-white flex justify-end">
+                        <button onclick="toggleSolution('sol-1', this)" class="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-lg border border-blue-200 hover:bg-blue-600 hover:text-white transition-colors">แสดงเฉลย</button>
+                    </div>
+                    <div id="sol-1" class="hidden px-5 py-4 bg-blue-50/40 text-slate-700 border-t border-slate-100">
+                        <p class="font-bold mb-2">วิธีทำ (ใช้กฎรวมแก๊ส Combined Gas Law):</p>
+                        <p>1. แปลงหน่วย: สภาวะ 1 (ถังใหญ่): $P_1 = 57.8 \text{ atm}, V_1 = 12.0 \text{ L}, T_1 = 297 \text{ K}$</p>
+                        <p>2. สภาวะ 2 (หลอดไฟ): $P_2 = \frac{3.00}{760} \text{ atm}, V_{\text{bulb}} = 0.158 \text{ L}, T_2 = 294 \text{ K}$</p>
+                        <p>3. เข้าสูตร $\frac{P_1V_1}{T_1} = \frac{P_2V_{\text{total}}}{T_2}$ จะได้ $\frac{(57.8)(12.0)}{297} = \frac{(3/760)V_{\text{total}}}{294}$</p>
+                        <p>4. แก้สมการหา $V_{\text{total}} \approx 195,630.7 \text{ L}$</p>
+                        <p class="mt-2 font-bold text-indigo-700">จำนวนหลอดไฟ = $\frac{195,630.7}{0.158} \approx \mathbf{1.23 \times 10^6}$ ดวง</p>
+                    </div>
+                </div>
+
+                <!-- Problem 2 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex items-start">
+                        <span class="font-bold text-blue-600 mr-3 text-lg">Q2</span>
+                        <div class="text-slate-800 text-lg flex-1">
+                            <b>(L06 ของเหลว)</b> ต้องใช้พลังงานกี่กิโลจูล (kJ) ในการทำให้น้ำแข็ง $5.00 \text{ g}$ จาก $-10.0^{\circ}\text{C}$ กลายเป็นน้ำเหลวที่ $15.0^{\circ}\text{C}$? <br>
+                            <span class="text-sm text-slate-500">(กำหนด: $C_{\text{ice}} = 36.6 \text{ J/(K mol)}$, $C_{\text{water}} = 75.3 \text{ J/(K mol)}$, $\Delta H_{\text{fus}} = 6.01 \text{ kJ/mol}$, MW = 18)</span>
+                        </div>
+                    </div>
+                    <div class="px-5 py-3 bg-white flex justify-end">
+                        <button onclick="toggleSolution('sol-2', this)" class="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-lg border border-blue-200 hover:bg-blue-600 hover:text-white transition-colors">แสดงเฉลย</button>
+                    </div>
+                    <div id="sol-2" class="hidden px-5 py-4 bg-blue-50/40 text-slate-700 border-t border-slate-100">
+                        <p class="font-bold mb-2">วิธีทำ (แบ่งคำนวณ 3 ช่วง): หาจำนวนโมล $n = 5.00 / 18 \approx 0.278 \text{ mol}$</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>อุ่นน้ำแข็ง ($-10 \rightarrow 0^{\circ}\text{C}$): $Q_1 = n \cdot C_{\text{ice}} \cdot \Delta T = (5/18) \times 36.6 \times 10 = 101.67 \text{ J}$</li>
+                            <li>หลอมเหลวที่ $0^{\circ}\text{C}$: $Q_2 = n \cdot \Delta H_{\text{fus}} = (5/18) \times 6010 \text{ J/mol} = 1669.44 \text{ J}$</li>
+                            <li>อุ่นน้ำเหลว ($0 \rightarrow 15^{\circ}\text{C}$): $Q_3 = n \cdot C_{\text{water}} \cdot \Delta T = (5/18) \times 75.3 \times 15 = 313.75 \text{ J}$</li>
                         </ul>
+                        <p class="mt-2 font-bold text-indigo-700">พลังงานรวม = $101.67 + 1669.44 + 313.75 = 2084.86 \text{ J} \approx \mathbf{2.085 \text{ kJ}}$</p>
                     </div>
                 </div>
 
-                <!-- L06 Card -->
-                <div class="theory-card l06 bg-white rounded-xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="px-2.5 py-1 bg-blue-100 text-blue-800 rounded-md text-xs font-bold">บทเรียน L06</span>
-                        <span class="text-xs text-slate-400">Liquids, Solids & Crystallography</span>
+                <!-- Problem 3 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex items-start">
+                        <span class="font-bold text-blue-600 mr-3 text-lg">Q3</span>
+                        <div class="text-slate-800 text-lg flex-1">
+                            <b>(L07 ของแข็ง)</b> คำนวณมุมเลี้ยวเบน $\theta$ ที่รังสีเอกซ์ความยาวคลื่น $0.154 \text{ nm}$ ตกกระทบระนาบผลึกที่มีระยะห่าง $233 \text{ pm}$ (กำหนด $n = 1$)
+                        </div>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900">ของเหลว ผลึกศาสตร์ ยูนิตเซลล์ และแผนภาพวัฏภาค</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        สมบัติของเหลวขึ้นกับแรงยึดเหนี่ยวระหว่างโมเลกุล (London dispersion, Dipole-dipole, H-bonding) ส่งผลต่อความตึงผิว ความหนืด และแรงแคพิลลารี ความดันไอขึ้นกับอุณหภูมิตาม **สมการคลอเซียส-คลาเปย์รอน** การเปลี่ยนสถานะคิดความร้อน 5 ช่วง ($q = mc\Delta T$ และ $q = n\Delta H$)
-                    </p>
-                    <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs space-y-2">
-                        <div class="font-semibold text-slate-800">📌 ผลึกศาสตร์และยูนิตเซลล์ (Crystallography):</div>
-                        <ul class="list-disc list-inside text-slate-600 space-y-1">
-                            <li>**การกระเจิงรังสีเอ็กซ์ (Bragg's Law):** $n\lambda = 2d \sin\theta$ (คำนวณระยะห่างระหว่างระนาบผลึก $d$)</li>
-                            <li>**ความหนาแน่นยูนิตเซลล์:** $\rho = \frac{n \cdot MW}{N_A \cdot a^3}$ โดย $n$ คือจำนวนอะตอมในยูนิตเซลล์ (SCC=1, BCC=2, FCC=4)</li>
-                            <li>**Diamond Cubic Structure:** มี 8 อะตอม/ยูนิตเซลล์ ความสัมพันธ์รัศมีอะตอม $a = \frac{8r}{\sqrt{3}}$</li>
-                            <li>**โครงสร้าง CuCl (Zinc Blende):** $Cl^-$ จัดแบบ FCC ($4 \text{ ions}$), $Cu^+$ บรรจุในช่อง Tetrahedral holes ครึ่งหนึ่ง ($4 \text{ ions}$) สูตรคือ $CuCl$</li>
-                            <li>**Phase Diagram $H_2O$ vs $CO_2$:** น้ำมี Solid-Liquid Slope เป็นลบเพราะน้ำแข็งหนาแน่นน้อยกว่าน้ำเหลว ส่วน $CO_2$ มี Slope เป็นบวก</li>
+                    <div class="px-5 py-3 bg-white flex justify-end">
+                        <button onclick="toggleSolution('sol-3', this)" class="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-lg border border-blue-200 hover:bg-blue-600 hover:text-white transition-colors">แสดงเฉลย</button>
+                    </div>
+                    <div id="sol-3" class="hidden px-5 py-4 bg-blue-50/40 text-slate-700 border-t border-slate-100">
+                        <p class="font-bold mb-2">วิธีทำ (กฎของแบร็กก์):</p>
+                        <p>สูตร: $n\lambda = 2d\sin\theta$</p>
+                        <p>1. แปลงหน่วยระยะห่าง: $d = 233 \text{ pm} = 0.233 \text{ nm}$</p>
+                        <p>2. แทนค่า: $(1)(0.154) = 2(0.233)\sin\theta$</p>
+                        <p>3. $\sin\theta = 0.154 / 0.466 \approx 0.33047$</p>
+                        <p class="mt-2 font-bold text-indigo-700">$\theta = \arcsin(0.33047) \approx \mathbf{19.27^{\circ}}$</p>
+                    </div>
+                </div>
+
+                <!-- Problem 4 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex items-start">
+                        <span class="font-bold text-blue-600 mr-3 text-lg">Q4</span>
+                        <div class="text-slate-800 text-lg flex-1">
+                            <b>(L07 ของแข็ง)</b> ทองคำ ($Au$, MW=197) มีโครงสร้างแบบ FCC มีความหนาแน่น $19.3 \text{ g/cm}^3$ จงหารัศมีอะตอมของทองคำในหน่วย $\text{pm}$
+                        </div>
+                    </div>
+                    <div class="px-5 py-3 bg-white flex justify-end">
+                        <button onclick="toggleSolution('sol-4', this)" class="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-lg border border-blue-200 hover:bg-blue-600 hover:text-white transition-colors">แสดงเฉลย</button>
+                    </div>
+                    <div id="sol-4" class="hidden px-5 py-4 bg-blue-50/40 text-slate-700 border-t border-slate-100">
+                        <p class="font-bold mb-2">วิธีทำ:</p>
+                        <p>1. โครงสร้าง FCC มี $Z = 4$ และ $a = \sqrt{8}r$</p>
+                        <p>2. จากสูตรความหนาแน่น: $d = \frac{Z \times MW}{N_A \times a^3}$</p>
+                        <p>3. แทนค่า: $19.3 = \frac{4 \times 197}{(6.02\times 10^{23}) \times a^3} \rightarrow a^3 \approx 6.78 \times 10^{-23} \text{ cm}^3$</p>
+                        <p>4. จะได้ $a \approx 4.08 \times 10^{-8} \text{ cm}$</p>
+                        <p>5. หารัศมี: $r = a / \sqrt{8} = (4.08 \times 10^{-8}) / 2.828 \approx 1.44 \times 10^{-8} \text{ cm}$</p>
+                        <p class="mt-2 font-bold text-indigo-700">แปลงเป็น picometer ($1 \text{ cm} = 10^{10} \text{ pm}$): $r = \mathbf{144 \text{ pm}}$</p>
+                    </div>
+                </div>
+
+                <!-- Problem 5 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex items-start">
+                        <span class="font-bold text-blue-600 mr-3 text-lg">Q5</span>
+                        <div class="text-slate-800 text-lg flex-1">
+                            <b>(L08 สารละลาย)</b> จงหาจุดเยือกแข็งของสารละลายเมื่อละลาย $CH_3OH$ $0.1 \text{ mol}$, $NaCl$ $0.1 \text{ mol}$, และ $MgF_2$ $0.1 \text{ mol}$ รวมกันในน้ำ $200 \text{ g}$ (กำหนด $K_f = 1.86^{\circ}\text{C/m}$)
+                        </div>
+                    </div>
+                    <div class="px-5 py-3 bg-white flex justify-end">
+                        <button onclick="toggleSolution('sol-5', this)" class="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-lg border border-blue-200 hover:bg-blue-600 hover:text-white transition-colors">แสดงเฉลย</button>
+                    </div>
+                    <div id="sol-5" class="hidden px-5 py-4 bg-blue-50/40 text-slate-700 border-t border-slate-100">
+                        <p class="font-bold mb-2">วิธีทำ (ระวังค่า $i$ Van't Hoff factor):</p>
+                        <p>หาโมลรวมอนุภาค:</p>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>$CH_3OH$ (ไม่แตกตัว $i=1$) = $0.1 \text{ mol}$</li>
+                            <li>$NaCl$ (แตกตัว $i=2$) = $0.1 \times 2 = 0.2 \text{ mol}$</li>
+                            <li>$MgF_2$ (แตกตัว $i=3$) = $0.1 \times 3 = 0.3 \text{ mol}$</li>
                         </ul>
-                    </div>
-                </div>
-
-                <!-- L07 Card -->
-                <div class="theory-card l07 bg-white rounded-xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="px-2.5 py-1 bg-indigo-100 text-indigo-800 rounded-md text-xs font-bold">บทเรียน L07</span>
-                        <span class="text-xs text-slate-400">Solutions & Thermodynamics</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-900">อุณหพลศาสตร์การละลาย และการคำนวณความเข้มข้น</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        การเกิดสารละลายประกอบด้วย 3 ขั้นตอน: $\Delta H_{soln} = \Delta H_{solute} + \Delta H_{solvent} + \Delta H_{mix}$ หากแรงดึงดูดระหว่างตัวถูกละลาย-ตัวทำละลายแข็งแรงกว่า ($\Delta H_{mix}$ คายความร้อนสูง) การละลายจะเป็นกระบวนการคายความร้อน การละลายยึดหลัก **"Like dissolves like"**
-                    </p>
-                    <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs space-y-2">
-                        <div class="font-semibold text-slate-800">📌 ปัจจัยและตรรกะความเข้มข้นสารละลาย:</div>
-                        <ul class="list-disc list-inside text-slate-600 space-y-1">
-                            <li>**สภาพละลายได้ของก๊าซ (Henry's Law):** $C = k \cdot P_{gas}$ ความสามารถในการละลายของก๊าซในของเหลวจะลดลงเสมอเมื่ออุณหภูมิสูงขึ้น</li>
-                            <li>**พลังงานไฮเดรชัน (Hydration Energy):** พลังงานที่ปลดปล่อยเมื่อไอออนในสภาวะก๊าซล้อมรอบด้วยโมเลกุลน้ำ ($\Delta H_{hydr} = \Delta H_{solvent} + \Delta H_{mix}$)</li>
-                            <li>**สูตรลัดแปลงความเข้มข้น:** $M = \frac{\%w/w \cdot d \cdot 10}{MW}$ และ $m = \frac{1000 \cdot M}{1000d - M \cdot MW}$</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- L08 Card -->
-                <div class="theory-card l08 bg-white rounded-xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="px-2.5 py-1 bg-purple-100 text-purple-800 rounded-md text-xs font-bold">บทเรียน L08</span>
-                        <span class="text-xs text-slate-400">Colligative & Electrolytes</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-900">สมบัติคอลลิเกทีฟ กฎของรออุลต์ และสารละลายอิเล็กโทรไลต์</h3>
-                    <p class="text-slate-600 text-sm leading-relaxed">
-                        สมบัติคอลลิเกทีฟขึ้นกับจำนวนอนุภาคของตัวถูกละลาย กฎของรออุลต์กล่าวว่าความดันไอของสารละลายแปรผันตามเศษส่วนโมลตัวทำละลาย ($P_{soln} = X_{solvent} P^\circ_{solvent}$) สำหรับสารผสมระเหยง่าย $P_{total} = X_A P_A^\circ + X_B P_B^\circ$
-                    </p>
-                    <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs space-y-2">
-                        <div class="font-semibold text-slate-800">📌 ปรากฏการณ์สารละลายอิเล็กโทรไลต์เชิงลึก:</div>
-                        <ul class="list-disc list-inside text-slate-600 space-y-1">
-                            <li>**แฟกเตอร์แวนต์โฮฟ ($i$):** อัตราส่วนจำนวนอนุภาคจริงหลังละลายต่อจำนวนโมลเริ่มต้น ($\Delta T_b = i K_b m, \Delta T_f = i K_f m, \Pi = i M R T$)</li>
-                            <li>**ปรากฏการณ์ Ion Pairing:** ในสารละลายเข้มข้น แรงไฟฟ้าสถิตดึงดูดไอออนบวกและลบเข้าคู่กัน ประพฤติตนเป็นอนุภาคเดี่ยว ทำให้ $i_{real} < i_{ideal}$</li>
-                            <li>**ระดับการแตกตัว ($\alpha$):** คำนวณจาก $\alpha = \frac{i - 1}{n - 1}$ โดย $n$ คือจำนวนไอออนสูงสุดที่ได้จากการแตกตัว 1 โมล</li>
-                        </ul>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Crystalline Solids Interactive Matrix -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mt-6">
-                <h3 class="text-lg font-bold text-slate-900 mb-1">ตารางสังเคราะห์ตรรกะชนิดของแข็งผลึก (Crystalline Solids Matrix)</h3>
-                <p class="text-xs text-slate-500 mb-4">เปรียบเทียบอนุภาค แรงยึดเหนี่ยว สมบัติกายภาพ และโครงสร้างตัวอย่างจากเอกสารบทเรียน L06</p>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left text-slate-600">
-                        <thead class="text-xs uppercase bg-slate-100 text-slate-700">
-                            <tr>
-                                <th class="p-3">ชนิดผลึก</th>
-                                <th class="p-3">อนุภาคองค์ประกอบ</th>
-                                <th class="p-3">ชนิดแรงยึดเหนี่ยว</th>
-                                <th class="p-3">สมบัติทางกายภาพหลัก</th>
-                                <th class="p-3">ตัวอย่างสารและโครงสร้าง</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200">
-                            <tr class="hover:bg-teal-50/50">
-                                <td class="p-3 font-bold text-teal-800">Molecular (โมเลกุล)</td>
-                                <td class="p-3">โมเลกุล หรือ อะตอมก๊าซเฉื่อย</td>
-                                <td class="p-3">แรงแวนเดอร์วาลส์, พันธะไฮโดรเจน</td>
-                                <td class="p-3">จุดหลอมเหลวต่ำ, อ่อนนุ่ม, ไม่นำไฟฟ้า</td>
-                                <td class="p-3 font-medium">น้ำแข็ง ($H_2O$), น้ำแข็งแห้ง ($CO_2$), $I_2$, $CBr_4$</td>
-                            </tr>
-                            <tr class="hover:bg-blue-50/50">
-                                <td class="p-3 font-bold text-blue-800">Ionic (ไอออนิก)</td>
-                                <td class="p-3">ไอออนบวก และ ไอออนลบ</td>
-                                <td class="p-3">แรงดึงดูดทางไฟฟ้าสถิต (Ionic)</td>
-                                <td class="p-3">จุดหลอมเหลวสูง, เปราะ, นำไฟฟ้าเมื่อหลอมเหลว/ละลาย</td>
-                                <td class="p-3 font-medium">$NaCl$, $CuCl$ (Zinc Blende), $CaCl_2$, $AgCl$</td>
-                            </tr>
-                            <tr class="hover:bg-amber-50/50">
-                                <td class="p-3 font-bold text-amber-800">Metallic (โลหะ)</td>
-                                <td class="p-3">อะตอมโลหะ (ไอออนบวก)</td>
-                                <td class="p-3">พันธะโลหะ (ทะเลอิเล็กตรอน)</td>
-                                <td class="p-3">นำความร้อน/ไฟฟ้าดีเยี่ยม, ตีเป็นแผ่นได้</td>
-                                <td class="p-3 font-medium">เหล็ก BCC ($Fe$), ทองแดง ($Cu$), โซเดียม ($Na$)</td>
-                            </tr>
-                            <tr class="hover:bg-purple-50/50">
-                                <td class="p-3 font-bold text-purple-800">Network Covalent (ร่างตาข่าย)</td>
-                                <td class="p-3">อะตอม non-metal</td>
-                                <td class="p-3">พันธะโคเวเลนต์เชื่อม 3 มิติ</td>
-                                <td class="p-3">จุดหลอมเหลวสูงมาก, แข็งระดับสูงสุด</td>
-                                <td class="p-3 font-medium">ซิลิคอน Diamond Cubic ($Si$), เพชร ($C$), ควอตซ์ ($SiO_2$)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Concentration Units Conversion Matrix -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <h3 class="text-lg font-bold text-slate-900 mb-1">ตารางตรรกะและการแปลงหน่วยความเข้มข้นสารละลาย (Concentration Units Matrix)</h3>
-                <p class="text-xs text-slate-500 mb-4">สรุปสูตรคำนวณ นิยาม ผลกระทบของอุณหภูมิ และสูตรลัดการแปลงหน่วยจากบทเรียน L07-L08</p>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left text-slate-600">
-                        <thead class="text-xs uppercase bg-slate-100 text-slate-700">
-                            <tr>
-                                <th class="p-3">หน่วยความเข้มข้น</th>
-                                <th class="p-3">นิยาม / นิพจน์ทางคณิตศาสตร์</th>
-                                <th class="p-3">ผลของอุณหภูมิ ($T$)</th>
-                                <th class="p-3">สูตรลัดการแปลงหน่วย</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200">
-                            <tr>
-                                <td class="p-3 font-bold text-slate-800">ร้อยละโดยมวล (% w/w)</td>
-                                <td class="p-3">$\frac{\text{มวลตัวถูกละลาย (g)}}{\text{มวลสารละลาย (g)}} \times 100$</td>
-                                <td class="p-3 text-emerald-700 font-semibold">ไม่ขึ้นกับ T (คงที่)</td>
-                                <td class="p-3 font-mono">$M = \frac{\%w/w \cdot d \cdot 10}{MW}$</td>
-                            </tr>
-                            <tr>
-                                <td class="p-3 font-bold text-slate-800">โมลาริตี (Molarity, M)</td>
-                                <td class="p-3">$\frac{\text{จำนวนโมลตัวถูกละลาย (mol)}}{\text{ปริมาตรสารละลาย (L)}}$</td>
-                                <td class="p-3 text-rose-700 font-semibold">เปลี่ยนแปลงตาม T (ปริมาตรขยายตัว)</td>
-                                <td class="p-3 font-mono">$M = \frac{\%w/v \cdot 10}{MW}$</td>
-                            </tr>
-                            <tr>
-                                <td class="p-3 font-bold text-slate-800">โมแลลิตี (Molality, m)</td>
-                                <td class="p-3">$\frac{\text{จำนวนโมลตัวถูกละลาย (mol)}}{\text{มวลตัวทำละลาย (kg)}}$</td>
-                                <td class="p-3 text-emerald-700 font-semibold">ไม่ขึ้นกับ T (คงที่)</td>
-                                <td class="p-3 font-mono">$m = \frac{1000 \cdot M}{1000d - M \cdot MW}$</td>
-                            </tr>
-                            <tr>
-                                <td class="p-3 font-bold text-slate-800">เศษส่วนโมล (Mole Fraction, X)</td>
-                                <td class="p-3">$\frac{n_i}{n_{total}}$</td>
-                                <td class="p-3 text-emerald-700 font-semibold">ไม่ขึ้นกับ T (คงที่)</td>
-                                <td class="p-3 font-mono">$X_A = \frac{n_A}{n_A + n_B}$</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- SECTION 2: INTERACTIVE SIMULATORS -->
-        <section id="section-simulators" class="hidden space-y-8">
-            <!-- Intro Paragraph -->
-            <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-                <h2 class="text-xl font-bold text-slate-900 mb-2">🧮 ศูนย์จำลองปรากฏการณ์เคมีโต้ตอบ (Interactive Chemistry Simulators)</h2>
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    ส่วนนี้ได้รับการออกแบบเพื่อให้ผู้เรียนสามารถทดลองปรับเปลี่ยนตัวแปรทางฟิสิกส์เคมีแบบเรียลไทม์ (Interactive Parameter Manipulation) เพื่อสังเกตผลกระทบต่อกราฟการกระจายความเร็วแมกซ์เวลล์-โบลทซ์มันน์, การสลับแผนภาพวัฏภาคระหว่างน้ำและคาร์บอนไดออกไซด์, รวมถึงคำนวณสมบัติคอลลิเกทีฟพร้อมกราฟเปรียบเทียบระหว่างสารนอนอิเล็กโทรไลต์และอิเล็กโทรไลต์
-                </p>
-            </div>
-
-            <!-- SIMULATOR 1: MAXWELL-BOLTZMANN -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-                <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-4 mb-4 gap-2">
-                    <div>
-                        <span class="px-2.5 py-1 bg-teal-100 text-teal-800 rounded-md text-xs font-bold">Simulator 1 (L05)</span>
-                        <h3 class="text-lg font-bold text-slate-900">การแจกแจงความเร็วโมเลกุล Maxwell-Boltzmann Distribution</h3>
-                    </div>
-                    <div class="text-xs text-slate-500">
-                        คำนวณค่า $v_{mp}, v_{avg}, v_{rms}$ จาก $T$ และมวลโมเลกุล
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                    <!-- Controls Column -->
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-                        <h4 class="font-bold text-sm text-slate-800 border-b border-slate-200 pb-2">⚙️ ควบคุมพารามิเตอร์</h4>
-                        
-                        <!-- Gas Select -->
-                        <div>
-                            <label class="block text-xs font-medium text-slate-700 mb-1">เลือกชนิดก๊าซ (มวลโมเลกุล):</label>
-                            <select id="mb-gas-select" onchange="updateMaxwellChart()" class="w-full text-xs p-2 rounded-lg border border-slate-300 bg-white">
-                                <option value="2">ไฮโดรเจน (H2, MW = 2 g/mol)</option>
-                                <option value="4">ฮีเลียม (He, MW = 4 g/mol)</option>
-                                <option value="28">ไนโตรเจน (N2, MW = 28 g/mol)</option>
-                                <option value="32" selected>ออกซิเจน (O2, MW = 32 g/mol)</option>
-                                <option value="44">คาร์บอนไดออกไซด์ (CO2, MW = 44 g/mol)</option>
-                                <option value="131">ซีนอน (Xe, MW = 131 g/mol)</option>
-                            </select>
-                        </div>
-
-                        <!-- Temp Slider -->
-                        <div>
-                            <div class="flex justify-between text-xs mb-1">
-                                <span class="font-medium text-slate-700">อุณหภูมิระบบ ($T$):</span>
-                                <span id="mb-temp-val" class="font-bold text-teal-700">300 K</span>
-                            </div>
-                            <input type="range" id="mb-temp-slider" min="100" max="1200" step="25" value="300" oninput="updateMaxwellChart()" class="w-full accent-teal-600">
-                        </div>
-
-                        <!-- Ea Slider -->
-                        <div>
-                            <div class="flex justify-between text-xs mb-1">
-                                <span class="font-medium text-slate-700">พลังงานก่อกัมมันต์ ($E_a$ Cutoff):</span>
-                                <span id="mb-ea-val" class="font-bold text-amber-700">600 m/s</span>
-                            </div>
-                            <input type="range" id="mb-ea-slider" min="200" max="1500" step="50" value="600" oninput="updateMaxwellChart()" class="w-full accent-amber-600">
-                        </div>
-
-                        <!-- Stat Readout Box -->
-                        <div class="bg-white p-3 rounded-lg border border-slate-200 space-y-1.5 text-xs">
-                            <div class="font-semibold text-slate-700 mb-1">📊 ผลการคำนวณทางสถิติ:</div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">Most Probable Speed ($v_{mp}$):</span>
-                                <span id="stat-vmp" class="font-mono font-bold text-teal-700">394 m/s</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">Average Speed ($v_{avg}$):</span>
-                                <span id="stat-vavg" class="font-mono font-bold text-blue-700">445 m/s</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">RMS Speed ($v_{rms}$):</span>
-                                <span id="stat-vrms" class="font-mono font-bold text-purple-700">483 m/s</span>
-                            </div>
-                            <div class="flex justify-between border-t border-slate-100 pt-1">
-                                <span class="text-slate-500">สัดส่วนอนุภาคที่มี $v \ge E_a$:</span>
-                                <span id="stat-fraction" class="font-mono font-bold text-amber-600">22.4 %</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chart Display Area -->
-                    <div class="lg:col-span-2">
-                        <div class="chart-container">
-                            <canvas id="maxwellChartCanvas"></canvas>
-                        </div>
-                        <p class="text-xs text-center text-slate-500 mt-2">
-                            💡 **ข้อสังเกต:** เมื่อเพิ่มอุณหภูมิ ($T$) ยอดกราฟจะเลื่อนไปทางขวาและแบนราบลง ทำให้พื้นที่ใต้กราฟฝั่งขวาของเส้น $E_a$ เพิ่มขึ้น ความถี่การชนที่มีประสิทธิภาพจึงสูงขึ้น
-                        </p>
+                        <p>รวมโมลอนุภาคทั้งหมด = $0.1 + 0.2 + 0.3 = 0.6 \text{ mol}$</p>
+                        <p>หาความเข้มข้น $m = 0.6 \text{ mol} / 0.2 \text{ kg} = 3 \text{ m}$</p>
+                        <p>หาอุณหภูมิที่ลดลง $\Delta T_f = K_f \cdot m = 1.86 \times 3 = 5.58^{\circ}\text{C}$</p>
+                        <p class="mt-2 font-bold text-indigo-700">จุดเยือกแข็งใหม่ = $0 - 5.58 = \mathbf{-5.58^{\circ}\text{C}}$</p>
                     </div>
                 </div>
             </div>
+        </div>
 
-
-            <!-- SIMULATOR 2: PHASE DIAGRAM EXPLORER -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-                <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-4 mb-4 gap-2">
-                    <div>
-                        <span class="px-2.5 py-1 bg-blue-100 text-blue-800 rounded-md text-xs font-bold">Simulator 2 (L06)</span>
-                        <h3 class="text-lg font-bold text-slate-900">ตัวสำรวจแผนภาพวัฏภาคโต้ตอบ (Phase Diagram Explorer)</h3>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xs font-medium text-slate-600">เลือกสาร:</span>
-                        <button id="btn-phase-h2o" onclick="togglePhaseSubstance('h2o')" class="px-3 py-1 bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors">
-                            น้ำ ($H_2O$) [Slope ลบ]
-                        </button>
-                        <button id="btn-phase-co2" onclick="togglePhaseSubstance('co2')" class="px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors">
-                            คาร์บอนไดออกไซด์ ($CO_2$) [Slope บวก]
-                        </button>
-                    </div>
+        <!-- ================= Tab 7: Quiz with Radar Chart ================= -->
+        <div id="tab-quiz" class="tab-content bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900">แบบทดสอบประเมินความพร้อม</h2>
+                    <p class="text-slate-500 mt-2">ทำข้อสอบทั้ง 10 ข้อเพื่อดูจุดแข็งและจุดอ่อนของคุณผ่าน Radar Chart</p>
                 </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                    <div class="chart-container lg:col-span-2">
-                        <canvas id="phaseChartCanvas"></canvas>
-                    </div>
-
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 text-xs">
-                        <h4 id="phase-title" class="font-bold text-sm text-slate-800 border-b border-slate-200 pb-2">💧 แผนภาพวัฏภาคของน้ำ ($H_2O$)</h4>
-                        <div id="phase-description" class="text-slate-600 leading-relaxed space-y-2">
-                            <p>**Triple Point:** 0.01 °C, 0.006 atm (สภาวะที่ของแข็ง ของเหลว และก๊าซ สมดุลร่วมกัน)</p>
-                            <p>**Critical Point:** 374 °C, 218 atm (เหนือจุดนี้กลายเป็นของไหลยิ่งยวด Supercritical Fluid)</p>
-                            <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-blue-900">
-                                **เหตุผลทางฟิสิกส์เคมี:** เส้น Solid-Liquid มีความชันเป็นลบ เนื่องจากผลึกน้ำแข็งมีโครงสร้างพันธะไฮโดรเจนโปร่ง ความหนาแน่นน้อยกว่าน้ำเหลว เมื่ออัดความดันสูง น้ำแข็งจะละลายกลายเป็นของเหลว
-                            </div>
-                        </div>
-                    </div>
+                <div id="score-display" class="hidden text-2xl font-bold text-indigo-700 bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-200">
+                    คะแนน: <span id="final-score">0</span> / 10
                 </div>
             </div>
 
-
-            <!-- SIMULATOR 3: COLLIGATIVE CALCULATOR -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-                <div class="border-b border-slate-200 pb-4 mb-4">
-                    <span class="px-2.5 py-1 bg-purple-100 text-purple-800 rounded-md text-xs font-bold">Simulator 3 (L08)</span>
-                    <h3 class="text-lg font-bold text-slate-900 mt-1">เครื่องคำนวณและจำลองสมบัติคอลลิเกทีฟ (Colligative Property Simulator)</h3>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Form Controls -->
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 text-xs">
-                        <h4 class="font-bold text-sm text-slate-800 border-b border-slate-200 pb-2">🧪 กำหนดองค์ประกอบสารละลาย</h4>
-                        
-                        <div>
-                            <label class="block text-slate-700 font-medium mb-1">มวลตัวทำละลาย (น้ำ, g):</label>
-                            <input type="number" id="col-solvent-mass" value="1000" min="100" step="50" onchange="calculateColligative()" class="w-full p-2 border border-slate-300 rounded-md bg-white">
-                        </div>
-
-                        <div>
-                            <label class="block text-slate-700 font-medium mb-1">เลือกตัวถูกละลาย (van 't Hoff $i$):</label>
-                            <select id="col-solute-type" onchange="calculateColligative()" class="w-full p-2 border border-slate-300 rounded-md bg-white">
-                                <option value="glucose">กลูโคส (Non-electrolyte, i = 1, MW = 180)</option>
-                                <option value="nacl" selected>โซเดียมคลอไรด์ (NaCl, i = 2, MW = 58.5)</option>
-                                <option value="cacl2">แคลเซียมคลอไรด์ (CaCl2, i = 3, MW = 111)</option>
-                                <option value="al2so43">อะลูมิเนียมซัลเฟต (Al2(SO4)3, i = 5, MW = 342)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-slate-700 font-medium mb-1">มวลตัวถูกละลาย (กรัม):</label>
-                            <input type="number" id="col-solute-mass" value="58.5" min="1" step="5" onchange="calculateColligative()" class="w-full p-2 border border-slate-300 rounded-md bg-white">
-                        </div>
-
-                        <div class="p-3 bg-purple-50 rounded-lg border border-purple-200 text-purple-900 space-y-1">
-                            <div class="font-bold">ผลคำนวณทันที:</div>
-                            <div class="flex justify-between"><span>ความเข้มข้น โมแลล ($m$):</span> <span id="col-res-m" class="font-bold">1.00 m</span></div>
-                            <div class="flex justify-between"><span>จุดเดือดใหม่ ($T_b$):</span> <span id="col-res-tb" class="font-bold">101.04 °C</span></div>
-                            <div class="flex justify-between"><span>จุดเยือกแข็งใหม่ ($T_f$):</span> <span id="col-res-tf" class="font-bold">-3.72 °C</span></div>
-                            <div class="flex justify-between"><span>ความดันออสโมติก ($\Pi$):</span> <span id="col-res-pi" class="font-bold">48.9 atm</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Comparison Chart -->
-                    <div class="lg:col-span-2">
-                        <div class="chart-container">
-                            <canvas id="colligativeChartCanvas"></canvas>
-                        </div>
-                        <p class="text-xs text-center text-slate-500 mt-2">
-                            📊 แผนภูมิแสดงการเปรียบเทียบการเปลี่ยนแปลงจุดเยือกแข็ง ($\Delta T_f$) ที่ความเข้มข้นโมแลลเท่ากันระหว่างสารประเภทต่างๆ
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- SECTION 3: FORMULA REFERENCE HUB -->
-        <section id="section-formulas" class="hidden space-y-6">
-            <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-                <h2 class="text-xl font-bold text-slate-900 mb-1">📐 ศูนย์รวมสูตรสมการเคมีมาตรฐานสากล (LaTeX Formula Hub)</h2>
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    สูตรสมการทั้งหมดแสดงผลด้วยระบบไวยากรณ์ทางคณิตศาสตร์ LaTeX ระดับสิ่งพิมพ์วิชาการ ครอบคลุมตั้งแต่กฎของก๊าซ ยูนิตเซลล์ อุณหพลศาสตร์ สารละลาย กฎของรออุลต์ และสมบัติคอลลิเกทีฟ
-                </p>
-                <div class="mt-4 flex flex-col sm:flex-row gap-3">
-                    <input type="text" id="formula-search" onkeyup="searchFormulas()" placeholder="🔍 ค้นหาสูตรสมการ เช่น Bragg, Raoult, Clausius, %w/w, Density..." class="text-xs sm:text-sm p-2.5 border border-slate-300 rounded-lg flex-grow">
-                </div>
-            </div>
-
-            <!-- Formulas Container -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="formulas-list">
-                
-                <!-- L05 Formulas -->
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded">L05: ก๊าซ</span>
-                        <span class="text-xs text-slate-400">Ideal Gas Equation</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$PV = nRT$$
-                    </div>
-                    <p class="text-xs text-slate-600">$P$ = ความดัน (atm), $V$ = ปริมาตร (L), $n$ = โมล, $R = 0.0821 \, \text{L atm mol}^{-1} \text{K}^{-1}$, $T$ = เคลวิน (K)</p>
-                </div>
-
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded">L05: ก๊าซ</span>
-                        <span class="text-xs text-slate-400">Density & Molar Mass</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$d = \frac{P \cdot MW}{RT} \quad \text{และ} \quad MW = \frac{d \cdot RT}{P}$$
-                    </div>
-                    <p class="text-xs text-slate-600">$d$ = ความหนาแน่นก๊าซ (g/L), $MW$ = มวลโมเลกุล (g/mol)</p>
-                </div>
-
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded">L05: การแพร่ผ่าน</span>
-                        <span class="text-xs text-slate-400">Graham's Law</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$\frac{r_1}{r_2} = \sqrt{\frac{MW_2}{MW_1}} = \frac{t_2}{t_1}$$
-                    </div>
-                    <p class="text-xs text-slate-600">$r$ = อัตราการแพร่ผ่าน, $t$ = เวลาที่ใช้ในการแพร่ผ่านปริมาตรที่เท่ากัน</p>
-                </div>
-
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded">L05: ก๊าซจริง</span>
-                        <span class="text-xs text-slate-400">van der Waals Equation</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$\left( P + \frac{an^2}{V^2} \right)(V - nb) = nRT$$
-                    </div>
-                    <p class="text-xs text-slate-600">$a$ = ปรับแก้แรงดึงดูดโมเลกุล, $b$ = ปรับแก้ปริมาตรโมเลกุลจริง</p>
-                </div>
-
-                <!-- L06 Formulas -->
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">L06: ผลึกศาสตร์</span>
-                        <span class="text-xs text-slate-400">Bragg's Law</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$n\lambda = 2d \sin\theta$$
-                    </div>
-                    <p class="text-xs text-slate-600">$n$ = อันดับของการกระเจิง, $\lambda$ = ความยาวคลื่นรังสีเอ็กซ์, $d$ = ระยะห่างระนาบ, $\theta$ = มุมตกกระทบ</p>
-                </div>
-
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">L06: ผลึกศาสตร์</span>
-                        <span class="text-xs text-slate-400">Unit Cell Density</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$\rho = \frac{n \cdot MW}{N_A \cdot a^3}$$
-                    </div>
-                    <p class="text-xs text-slate-600">$n$ = จำนวนอะตอมในยูนิตเซลล์, $N_A = 6.022 \times 10^{23}$, $a$ = ความยาวขอบยูนิตเซลล์</p>
-                </div>
-
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">L06: ของเหลว</span>
-                        <span class="text-xs text-slate-400">Clausius-Clapeyron</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$\ln\left(\frac{P_1}{P_2}\right) = \frac{\Delta H_{vap}}{R} \left( \frac{1}{T_2} - \frac{1}{T_1} \right)$$
-                    </div>
-                    <p class="text-xs text-slate-600">$P_1, P_2$ = ความดันไอ, $\Delta H_{vap}$ = เอนทาลปีการกลายเป็นไอ (J/mol), $R = 8.314 \, \text{J/mol K}$</p>
-                </div>
-
-                <!-- L07 Formulas -->
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">L07: สารละลาย</span>
-                        <span class="text-xs text-slate-400">สูตรลัดการแปลงความเข้มข้น</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$M = \frac{\%w/w \cdot d \cdot 10}{MW}$$
-                    </div>
-                    <p class="text-xs text-slate-600">$M$ = โมลาริตี (M), $\%w/w$ = ร้อยละโดยมวล, $d$ = ความหนาแน่นสารละลาย (g/mL)</p>
-                </div>
-
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">L07: สารละลาย</span>
-                        <span class="text-xs text-slate-400">Henry's Law</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$C = k \cdot P_{gas}$$
-                    </div>
-                    <p class="text-xs text-slate-600">$C$ = ความสามารถในการละลายของก๊าซ, $k$ = ค่าคงที่เฮนรี, $P_{gas}$ = ความดันย่อยของก๊าซ</p>
-                </div>
-
-                <!-- L08 Formulas -->
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded">L08: คอลลิเกทีฟ</span>
-                        <span class="text-xs text-slate-400">Raoult's Law (สารผสมระเหย)</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$P_{total} = X_A P_A^\circ + X_B P_B^\circ$$
-                    </div>
-                    <p class="text-xs text-slate-600">$P_{total}$ = ความดันไอรวม, $X_A, X_B$ = เศษส่วนโมล, $P_A^\circ, P_B^\circ$ = ความดันไอสารบริสุทธิ์</p>
-                </div>
-
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded">L08: คอลลิเกทีฟ</span>
-                        <span class="text-xs text-slate-400">Colligative & van 't Hoff</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$\Delta T_b = i K_b m \quad , \quad \Delta T_f = i K_f m \quad , \quad \Pi = i M R T$$
-                    </div>
-                    <p class="text-xs text-slate-600">$i$ = แฟกเตอร์ฟานตฮอฟฟ์, $K_b, K_f$ = ค่าคงที่จุดเดือด/เยือกแข็ง, $\Pi$ = ความดันออสโมติก (atm)</p>
-                </div>
-
-                <div class="formula-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded">L08: อิเล็กโทรไลต์</span>
-                        <span class="text-xs text-slate-400">Degree of Dissociation</span>
-                    </div>
-                    <div class="text-center py-3 bg-slate-50 rounded-lg border border-slate-100 text-lg">
-                        $$\alpha = \frac{i - 1}{n - 1}$$
-                    </div>
-                    <p class="text-xs text-slate-600">$\alpha$ = ระดับการแตกตัว ($0 \le \alpha \le 1$), $n$ = จำนวนไอออนสูงสุดที่ได้จากการแตกตัว</p>
-                </div>
-
-            </div>
-        </section>
-
-
-        <!-- SECTION 4: WORKED PROBLEMS & SOLUTIONS -->
-        <section id="section-problems" class="hidden space-y-6">
-            <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-                <h2 class="text-xl font-bold text-slate-900 mb-1">✍️ คลังโจทย์คำนวณและเฉลยอย่างละเอียด 10 ข้อ (Worked Problems)</h2>
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    รวบรวมโจทย์คำนวณวิเคราะห์จริงจากเอกสารแบบฝึกหัด L05-L08 พร้อมแสดงขั้นตอนวิธีทำอย่างเป็นระบบทีละขั้นเพื่อส่งเสริมทักษะการคิดคำนวณ
-                </p>
-            </div>
-
-            <!-- Problem Accordions -->
-            <div class="space-y-4">
-                
-                <!-- Problem 1 (L05) -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-start cursor-pointer" onclick="toggleSolution('prob1')">
-                        <div>
-                            <span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded text-xs font-bold">โจทย์ L05: ก๊าซรวม</span>
-                            <h3 class="font-bold text-slate-800 text-sm mt-1">ข้อที่ 1: การคำนวณจำนวนหลอดไฟฟ้าที่สามารถอัดก๊าซอาร์กอนได้</h3>
-                            <p class="text-xs text-slate-600 mt-1">ถังก๊าซอาร์กอนปริมาตร $12.0 \, \text{L}$ มีความดัน $57.8 \, \text{atm}$ ที่ $24^\circ\text{C}$ จะสามารถใช้อัดหลอดไฟฟ้าขนาด $158 \, \text{mL}$ ที่ความดัน $3.00 \, \text{torr}$ อุณหภูมิ $21^\circ\text{C}$ ได้กี่หลอด?</p>
-                        </div>
-                        <button id="btn-prob1" class="text-xs font-bold text-teal-700 bg-white border border-teal-200 px-3 py-1.5 rounded-lg">แสดงวิธีทำ</button>
-                    </div>
-                    <div id="sol-prob1" class="hidden p-5 bg-white text-xs text-slate-700 space-y-2 border-t border-slate-100">
-                        <p class="font-bold text-teal-800">📌 เฉลยและวิธีทำอย่างเป็นขั้นตอน:</p>
-                        <p>1. แปลงหน่วย: $P_1 = 57.8 \, \text{atm}$, $V_1 = 12.0 \, \text{L}$, $T_1 = 24 + 273.15 = 297.15 \, \text{K}$</p>
-                        <p>2. สำหรับหลอดไฟฟ้า: $P_2 = \frac{3.00}{760} = 0.003947 \, \text{atm}$, $T_2 = 21 + 273.15 = 294.15 \, \text{K}$</p>
-                        <p>3. คำนวณปริมาตรก๊าซรวม $V_2$ ที่สภาวะใหม่ด้วยกฎรวมก๊าซ ($\frac{P_1 V_1}{T_1} = \frac{P_2 V_2}{T_2}$):</p>
-                        <p class="pl-4 font-mono">$$V_2 = \frac{P_1 V_1 T_2}{P_2 T_1} = \frac{(57.8)(12.0)(294.15)}{(0.003947)(297.15)} = 1.74 \times 10^5 \, \text{L}$$</p>
-                        <p>4. ปริมาตรหลอดไฟฟ้า $V_{bulb} = 0.158 \, \text{L}$ ดังนั้น จำนวนหลอด $= \frac{1.74 \times 10^5}{0.158} \approx 1.10 \times 10^6 \, \text{หลอด}$</p>
-                        <p class="font-bold text-slate-900 border-t pt-2">ตอบ: สามารถบรรจุก๊าซอาร์กอนให้หลอดไฟฟ้าได้ $1.10 \times 10^6$ หลอด</p>
+            <!-- Quiz Form Container -->
+            <div id="quiz-container" class="space-y-8">
+                <!-- Q1 (Gases) -->
+                <div class="quiz-question border border-slate-200 rounded-lg p-5" data-category="gas" data-answer="b">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">1. ข้อใดกล่าวถูกต้องที่สุดเกี่ยวกับแก๊สอุดมคติ?</p>
+                    <div class="space-y-2">
+                        <label class="quiz-option"><input type="radio" name="q1" value="a"> ก. มีปริมาตรโมเลกุลมาก และชนกันแบบไม่ยืดหยุ่น</label>
+                        <label class="quiz-option"><input type="radio" name="q1" value="b"> ข. โมเลกุลไม่มีปริมาตรและไม่มีแรงยึดเหนี่ยวต่อกัน</label>
+                        <label class="quiz-option"><input type="radio" name="q1" value="c"> ค. แก๊สจริงจะทำตัวคล้ายแก๊สอุดมคติที่ความดันสูงอุณหภูมิต่ำ</label>
+                        <label class="quiz-option"><input type="radio" name="q1" value="d"> ง. พลังงานจลน์แปรผกผันกับอุณหภูมิเคลวิน</label>
                     </div>
                 </div>
 
-                <!-- Problem 2 (L05) -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-start cursor-pointer" onclick="toggleSolution('prob2')">
-                        <div>
-                            <span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded text-xs font-bold">โจทย์ L05: ก๊าซจริง</span>
-                            <h3 class="font-bold text-slate-800 text-sm mt-1">ข้อที่ 2: เปรียบเทียบความดันก๊าซ $O_2$ ด้วยสมการก๊าซอุดมคติและฟานเดอร์วาลส์</h3>
-                            <p class="text-xs text-slate-600 mt-1">คำนวณความดันของก๊าซ $O_2$ จำนวน $1.00 \, \text{mole}$ ในภาชนะ $1.00 \, \text{L}$ ที่ $0^\circ\text{C}$ ($a = 1.36 \, \text{L}^2\text{atm/mol}^2, b = 0.0318 \, \text{L/mol}$)</p>
-                        </div>
-                        <button id="btn-prob2" class="text-xs font-bold text-teal-700 bg-white border border-teal-200 px-3 py-1.5 rounded-lg">แสดงวิธีทำ</button>
-                    </div>
-                    <div id="sol-prob2" class="hidden p-5 bg-white text-xs text-slate-700 space-y-2 border-t border-slate-100">
-                        <p class="font-bold text-teal-800">📌 เฉลยและวิธีทำอย่างเป็นขั้นตอน:</p>
-                        <p>1. คำนวณแบบก๊าซอุดมคติ ($PV = nRT$):</p>
-                        <p class="pl-4 font-mono">$$P_{ideal} = \frac{(1.00)(0.0821)(273.15)}{1.00} = 22.42 \, \text{atm}$$</p>
-                        <p>2. คำนวณแบบก๊าซจริงด้วยฟานเดอร์วาลส์ $\left( P + \frac{an^2}{V^2} \right)(V - nb) = nRT$:</p>
-                        <p class="pl-4 font-mono">$$\left( P + \frac{1.36(1)^2}{1^2} \right)(1 - 1(0.0318)) = (1)(0.0821)(273.15)$$</p>
-                        <p class="pl-4 font-mono">$$(P + 1.36)(0.9682) = 22.42 \implies P + 1.36 = 23.15 \implies P_{real} = 21.79 \, \text{atm}$$</p>
-                        <p class="font-bold text-slate-900 border-t pt-2">ตอบ: $P_{ideal} = 22.42 \, \text{atm}$ และ $P_{real} = 21.79 \, \text{atm}$ (ความดันจริงต่ำกว่าเนื่องจากแรงดึงดูดระหว่างโมเลกุล)</p>
+                <!-- Q2 (Gases) -->
+                <div class="quiz-question border border-slate-200 rounded-lg p-5" data-category="gas" data-answer="c">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">2. หากบอลลูนมีปริมาตร $150\text{ L}$ ที่ $1\text{ atm}$ เมื่อลอยขึ้นไปที่ความดัน $0.75\text{ atm}$ (อุณหภูมิคงที่) ปริมาตรใหม่คือเท่าใด?</p>
+                    <div class="space-y-2">
+                        <label class="quiz-option"><input type="radio" name="q2" value="a"> ก. 112.5 L</label>
+                        <label class="quiz-option"><input type="radio" name="q2" value="b"> ข. 150 L</label>
+                        <label class="quiz-option"><input type="radio" name="q2" value="c"> ค. 200 L</label>
+                        <label class="quiz-option"><input type="radio" name="q2" value="d"> ง. 225 L</label>
                     </div>
                 </div>
 
-                <!-- Problem 3 (L05) -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-start cursor-pointer" onclick="toggleSolution('prob3')">
-                        <div>
-                            <span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded text-xs font-bold">โจทย์ L05: การแพร่ผ่าน</span>
-                            <h3 class="font-bold text-slate-800 text-sm mt-1">ข้อที่ 3: คำนวณมวลโมเลกุลของก๊าซไม่ทราบชนิดจากกฎของเกรแฮม</h3>
-                            <p class="text-xs text-slate-600 mt-1">ก๊าซไม่ทราบชนิดปริมาตร $250 \, \text{cm}^3$ แพร่ผ่านรูพรุนใช้เวลา $60.0 \, \text{s}$ ขณะที่ก๊าซออกซิเจน ($O_2$) ปริมาตรเท่ากันใช้เวลา $84.9 \, \text{s}$ จงหามวลโมเลกุลของก๊าซนี้</p>
-                        </div>
-                        <button id="btn-prob3" class="text-xs font-bold text-teal-700 bg-white border border-teal-200 px-3 py-1.5 rounded-lg">แสดงวิธีทำ</button>
-                    </div>
-                    <div id="sol-prob3" class="hidden p-5 bg-white text-xs text-slate-700 space-y-2 border-t border-slate-100">
-                        <p class="font-bold text-teal-800">📌 เฉลยและวิธีทำอย่างเป็นขั้นตอน:</p>
-                        <p>1. ใช้กฎการแพร่ผ่านของเกรแฮมสัมพันธ์กับเวลา $\frac{t_{unknown}}{t_{O_2}} = \sqrt{\frac{MW_{unknown}}{MW_{O_2}}}$</p>
-                        <p>2. แทนค่า $t_{unknown} = 60.0 \, \text{s}$, $t_{O_2} = 84.9 \, \text{s}$, $MW_{O_2} = 32.0 \, \text{g/mol}$:</p>
-                        <p class="pl-4 font-mono">$$\frac{60.0}{84.9} = \sqrt{\frac{MW_{unknown}}{32.0}} \implies 0.7067 = \sqrt{\frac{MW_{unknown}}{32.0}}$$</p>
-                        <p class="pl-4 font-mono">$$(0.7067)^2 = \frac{MW_{unknown}}{32.0} \implies 0.4994 \times 32.0 = 15.98 \, \text{g/mol}$$</p>
-                        <p class="font-bold text-slate-900 border-t pt-2">ตอบ: มวลโมเลกุลของก๊าซไม่ทราบชนิดเท่ากับ $15.98 \, \text{g/mol}$ (สันนิษฐานว่าคือก๊าซมีเทน $CH_4$)</p>
+                <!-- Q3 (Gases) -->
+                <div class="quiz-question border border-slate-200 rounded-lg p-5" data-category="gas" data-answer="c">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">3. แก๊ส $HCl$ แพร่ผ่านเร็วกว่าแก๊ส $X$ อยู่ 1.88 เท่า แก๊ส $X$ น่าจะเป็นอะไร? (กำหนด $MW_{HCl} \approx 36.5$)</p>
+                    <div class="space-y-2">
+                        <label class="quiz-option"><input type="radio" name="q3" value="a"> ก. HF (MW=20)</label>
+                        <label class="quiz-option"><input type="radio" name="q3" value="b"> ข. HBr (MW=81)</label>
+                        <label class="quiz-option"><input type="radio" name="q3" value="c"> ค. HI (MW=128)</label>
+                        <label class="quiz-option"><input type="radio" name="q3" value="d"> ง. HCl</label>
                     </div>
                 </div>
 
-                <!-- Problem 4 (L06) -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-start cursor-pointer" onclick="toggleSolution('prob4')">
-                        <div>
-                            <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-bold">โจทย์ L06: Bragg's Law</span>
-                            <h3 class="font-bold text-slate-800 text-sm mt-1">ข้อที่ 4: คำนวณระยะห่างระหว่างระนาบผลึก ($d$) จากผล X-Ray Diffraction</h3>
-                            <p class="text-xs text-slate-600 mt-1">ผลการทดลองการกระเจิงรังสีเอ็กซ์ที่มีความยาวคลื่น $\lambda = 0.7107 \, \text{Å}$ พบพีคการกระเจิงอันดับหนึ่ง ($n=1$) ที่มุม $2\theta = 59.42^\circ$ จงเวลารายหาระนาบผลึก $d$</p>
-                        </div>
-                        <button id="btn-prob4" class="text-xs font-bold text-teal-700 bg-white border border-teal-200 px-3 py-1.5 rounded-lg">แสดงวิธีทำ</button>
-                    </div>
-                    <div id="sol-prob4" class="hidden p-5 bg-white text-xs text-slate-700 space-y-2 border-t border-slate-100">
-                        <p class="font-bold text-blue-800">📌 เฉลยและวิธีทำอย่างเป็นขั้นตอน:</p>
-                        <p>1. คำนวณมุมตกกระทบ $\theta = \frac{59.42^\circ}{2} = 29.71^\circ$</p>
-                        <p>2. จากสมการ Bragg's Law ($n\lambda = 2d \sin\theta$):</p>
-                        <p class="pl-4 font-mono">$$d = \frac{n\lambda}{2 \sin\theta} = \frac{(1)(0.7107 \, \text{Å})}{2 \sin(29.71^\circ)} = \frac{0.7107}{2(0.4956)} = \frac{0.7107}{0.9912} = 0.717 \, \text{Å}$$</p>
-                        <p class="font-bold text-slate-900 border-t pt-2">ตอบ: ระยะห่างระหว่างระนาบผลึกเท่ากับ $0.717 \, \text{Å}$ (หรือ $0.0717 \, \text{nm}$)</p>
+                <!-- Q4 (Liquids) -->
+                <div class="quiz-question border border-slate-200 rounded-lg p-5" data-category="liquid" data-answer="b">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">4. สารใดต่อไปนี้มีจุดหลอมเหลวสูงที่สุดอันเนื่องมาจากแรงระหว่างโมเลกุล?</p>
+                    <div class="space-y-2">
+                        <label class="quiz-option"><input type="radio" name="q4" value="a"> ก. $Br_2$</label>
+                        <label class="quiz-option"><input type="radio" name="q4" value="b"> ข. $H_2O$ (น้ำแข็ง)</label>
+                        <label class="quiz-option"><input type="radio" name="q4" value="c"> ค. $ICl$</label>
+                        <label class="quiz-option"><input type="radio" name="q4" value="d"> ง. $CH_4$</label>
                     </div>
                 </div>
 
-                <!-- Problem 5 (L06) -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-start cursor-pointer" onclick="toggleSolution('prob5')">
-                        <div>
-                            <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-bold">โจทย์ L06: ยูนิตเซลล์</span>
-                            <h3 class="font-bold text-slate-800 text-sm mt-1">ข้อที่ 5: คำนวณความหนาแน่นเหล็กโครงสร้าง BCC และรัศมี Si Diamond Cubic</h3>
-                            <p class="text-xs text-slate-600 mt-1">เหล็ก ($Fe$, $MW = 55.845 \, \text{g/mol}$) ผลึกแบบ BCC มีขอบยาว $0.2866 \, \text{nm}$ จงคำนวณความหนาแน่นของเหล็กในหน่วย $\text{g/cm}^3$</p>
-                        </div>
-                        <button id="btn-prob5" class="text-xs font-bold text-teal-700 bg-white border border-teal-200 px-3 py-1.5 rounded-lg">แสดงวิธีทำ</button>
-                    </div>
-                    <div id="sol-prob5" class="hidden p-5 bg-white text-xs text-slate-700 space-y-2 border-t border-slate-100">
-                        <p class="font-bold text-blue-800">📌 เฉลยและวิธีทำอย่างเป็นขั้นตอน:</p>
-                        <p>1. โครงสร้าง BCC มีอะตอมเหล็ก $n = 2$ อะตอม/ยูนิตเซลล์</p>
-                        <p>2. แปลงความยาวขอบ $a = 0.2866 \, \text{nm} = 2.866 \times 10^{-8} \, \text{cm}$</p>
-                        <p>3. แทนค่าในสูตรความหนาแน่น $\rho = \frac{n \cdot MW}{N_A \cdot a^3}$:</p>
-                        <p class="pl-4 font-mono">$$\rho = \frac{2 \times 55.845}{(6.022 \times 10^{23}) \times (2.866 \times 10^{-8})^3} = \frac{111.69}{6.022 \times 10^{23} \times 2.354 \times 10^{-23}} = 7.88 \, \text{g/cm}^3$$</p>
-                        <p class="font-bold text-slate-900 border-t pt-2">ตอบ: ความหนาแน่นของเหล็กเท่ากับ $7.88 \, \text{g/cm}^3$</p>
+                <!-- Q5 (Liquids) -->
+                <div class="quiz-question border border-slate-200 rounded-lg p-5" data-category="liquid" data-answer="c">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">5. ข้อใดกล่าวถูกต้องเกี่ยวกับ Phase Diagram ของน้ำ?</p>
+                    <div class="space-y-2">
+                        <label class="quiz-option"><input type="radio" name="q5" value="a"> ก. เส้นสมดุล Solid-Liquid มีความชันเป็นบวก</label>
+                        <label class="quiz-option"><input type="radio" name="q5" value="b"> ข. ณ อุณหภูมิสูงกว่าจุดวิกฤต สามารถอัดแก๊สให้เป็นของเหลวได้</label>
+                        <label class="quiz-option"><input type="radio" name="q5" value="c"> ค. เส้นสมดุล Solid-Liquid มีความชันเป็นลบ เนื่องจากน้ำแข็งมีความหนาแน่นน้อยกว่าน้ำ</label>
+                        <label class="quiz-option"><input type="radio" name="q5" value="d"> ง. Triple point คือจุดที่ความดันไอเป็นศูนย์</label>
                     </div>
                 </div>
 
-                <!-- Problem 6 (L06) -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-start cursor-pointer" onclick="toggleSolution('prob6')">
-                        <div>
-                            <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-bold">โจทย์ L06: การเปลี่ยนสถานะ</span>
-                            <h3 class="font-bold text-slate-800 text-sm mt-1">ข้อที่ 6: ความร้อนที่ใช้เปลี่ยนน้ำแข็ง $-10^\circ\text{C}$ เป็นไอน้ำ $120^\circ\text{C}$</h3>
-                            <p class="text-xs text-slate-600 mt-1">คำนวณปริมาณความร้อนรวม (kJ) ที่ต้องใช้ในการเปลี่ยนน้ำแข็ง $86 \, \text{g}$ จาก $-10^\circ\text{C}$ ให้กลายเป็นไอน้ำที่ $120^\circ\text{C}$</p>
-                        </div>
-                        <button id="btn-prob6" class="text-xs font-bold text-teal-700 bg-white border border-teal-200 px-3 py-1.5 rounded-lg">แสดงวิธีทำ</button>
-                    </div>
-                    <div id="sol-prob6" class="hidden p-5 bg-white text-xs text-slate-700 space-y-2 border-t border-slate-100">
-                        <p class="font-bold text-blue-800">📌 เฉลยและวิธีทำอย่างเป็นขั้นตอน (แบ่งเป็น 5 ช่วง):</p>
-                        <p>• $q_1$ (อุ่นน้ำแข็ง $-10 \to 0^\circ\text{C}$): $86 \times 2.03 \times 10 = 1,745.8 \, \text{J}$</p>
-                        <p>• $q_2$ (หลอมเหลวน้ำแข็ง $0^\circ\text{C}$): $86 \times 333 = 28,638 \, \text{J}$</p>
-                        <p>• $q_3$ (อุ่นน้ำเหลว $0 \to 100^\circ\text{C}$): $86 \times 4.179 \times 100 = 35,939.4 \, \text{J}$</p>
-                        <p>• $q_4$ (กลายเป็นไอ $100^\circ\text{C}$): $86 \times 2260 = 194,360 \, \text{J}$</p>
-                        <p>• $q_5$ (อุ่นไอน้ำ $100 \to 120^\circ\text{C}$): $86 \times 1.99 \times 20 = 3,422.8 \, \text{J}$</p>
-                        <p class="font-mono pl-4 font-bold">$$q_{total} = 1745.8 + 28638 + 35939.4 + 194360 + 3422.8 = 264,106 \, \text{J} \approx 264.1 \, \text{kJ}$$</p>
-                        <p class="font-bold text-slate-900 border-t pt-2">ตอบ: ต้องใช้ความร้อนรวมเท่ากับ $264.1 \, \text{kJ}$</p>
+                <!-- Q6 (Solids) -->
+                <div class="quiz-question border border-slate-200 rounded-lg p-5" data-category="solid" data-answer="b">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">6. ผลึก FCC (Face-Centered Cubic) มีจำนวนอะตอมต่อ Unit cell เท่าใด?</p>
+                    <div class="space-y-2">
+                        <label class="quiz-option"><input type="radio" name="q6" value="a"> ก. 2 อะตอม</label>
+                        <label class="quiz-option"><input type="radio" name="q6" value="b"> ข. 4 อะตอม</label>
+                        <label class="quiz-option"><input type="radio" name="q6" value="c"> ค. 6 อะตอม</label>
+                        <label class="quiz-option"><input type="radio" name="q6" value="d"> ง. 8 อะตอม</label>
                     </div>
                 </div>
 
-                <!-- Problem 7 (L06) -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-start cursor-pointer" onclick="toggleSolution('prob7')">
-                        <div>
-                            <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-bold">โจทย์ L06: Clausius-Clapeyron</span>
-                            <h3 class="font-bold text-slate-800 text-sm mt-1">ข้อที่ 7: หาจุดเดือดปกติของสารทำความเย็น $CCl_2F_2$</h3>
-                            <p class="text-xs text-slate-600 mt-1">กำหนดความดันไอ $P_{vap} = 40.0 \, \text{mmHg}$ ที่ $-81.6^\circ\text{C}$ และ $P_{vap} = 400 \, \text{mmHg}$ ที่ $-43.9^\circ\text{C}$ จงหาจุดเดือดปกติ ($P = 760 \, \text{mmHg}$)</p>
-                        </div>
-                        <button id="btn-prob7" class="text-xs font-bold text-teal-700 bg-white border border-teal-200 px-3 py-1.5 rounded-lg">แสดงวิธีทำ</button>
-                    </div>
-                    <div id="sol-prob7" class="hidden p-5 bg-white text-xs text-slate-700 space-y-2 border-t border-slate-100">
-                        <p class="font-bold text-blue-800">📌 เฉลยและวิธีทำอย่างเป็นขั้นตอน:</p>
-                        <p>1. หา $\Delta H_{vap}$ จากสองสภาวะแรก ($T_1 = 191.55 \, \text{K}, T_2 = 229.25 \, \text{K}$):</p>
-                        <p class="pl-4 font-mono">$$\ln\left(\frac{400}{40}\right) = \frac{\Delta H_{vap}}{8.314} \left( \frac{1}{191.55} - \frac{1}{229.25} \right) \implies 2.3026 = \frac{\Delta H_{vap}}{8.314} (0.0008573)$$</p>
-                        <p class="pl-4 font-mono">$$\Delta H_{vap} = 22,330 \, \text{J/mol} = 22.33 \, \text{kJ/mol}$$</p>
-                        <p>2. คำนวณจุดเดือดปกติ $T_3$ ณ $P_3 = 760 \, \text{mmHg}$:</p>
-                        <p class="pl-4 font-mono">$$\ln\left(\frac{760}{400}\right) = \frac{22330}{8.314} \left( \frac{1}{229.25} - \frac{1}{T_3} \right) \implies 0.64185 = 2685.8 \left( 0.004362 - \frac{1}{T_3} \right)$$</p>
-                        <p class="pl-4 font-mono">$$0.000239 = 0.004362 - \frac{1}{T_3} \implies \frac{1}{T_3} = 0.004123 \implies T_3 = 242.5 \, \text{K} = -29.8^\circ\text{C}$$</p>
-                        <p class="font-bold text-slate-900 border-t pt-2">ตอบ: จุดเดือดปกติของสาร $CCl_2F_2$ เท่ากับ $-29.8^\circ\text{C}$</p>
+                <!-- Q7 (Solids) -->
+                <div class="quiz-question border border-slate-200 rounded-lg p-5" data-category="solid" data-answer="a">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">7. เพชร จัดเป็นของแข็งประเภทใด?</p>
+                    <div class="space-y-2">
+                        <label class="quiz-option"><input type="radio" name="q7" value="a"> ก. Covalent Network Solid</label>
+                        <label class="quiz-option"><input type="radio" name="q7" value="b"> ข. Ionic Solid</label>
+                        <label class="quiz-option"><input type="radio" name="q7" value="c"> ค. Molecular Solid</label>
+                        <label class="quiz-option"><input type="radio" name="q7" value="d"> ง. Metallic Solid</label>
                     </div>
                 </div>
 
-                <!-- Problem 8 (L07) -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-start cursor-pointer" onclick="toggleSolution('prob8')">
-                        <div>
-                            <span class="px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded text-xs font-bold">โจทย์ L07: การแปลงความเข้มข้น</span>
-                            <h3 class="font-bold text-slate-800 text-sm mt-1">ข้อที่ 8: แปลงร้อยละโดยมวลของ $H_2SO_4$ เป็น Molarity, Molality และ Mole Fraction</h3>
-                            <p class="text-xs text-slate-600 mt-1">สารละลายกรดซัลฟิวริก ($H_2SO_4$) เข้มข้น 16.0% โดยมวล มีความหนาแน่น $1.1094 \, \text{g/mL}$ จงหาความเข้มข้นเป็น Molarity (M)</p>
-                        </div>
-                        <button id="btn-prob8" class="text-xs font-bold text-teal-700 bg-white border border-teal-200 px-3 py-1.5 rounded-lg">แสดงวิธีทำ</button>
-                    </div>
-                    <div id="sol-prob8" class="hidden p-5 bg-white text-xs text-slate-700 space-y-2 border-t border-slate-100">
-                        <p class="font-bold text-indigo-800">📌 เฉลยและวิธีทำอย่างเป็นขั้นตอน:</p>
-                        <p>1. $MW(H_2SO_4) = 98.08 \, \text{g/mol}$</p>
-                        <p>2. ใช้สูตรลัดคำนวณโมลาริตี $M = \frac{\%w/w \cdot d \cdot 10}{MW}$:</p>
-                        <p class="pl-4 font-mono">$$M = \frac{16.0 \times 1.1094 \times 10}{98.08} = \frac{177.504}{98.08} = 1.81 \, \text{M}$$</p>
-                        <p>3. คำนวณ Molality ($m$): สารละลาย $100 \, \text{g}$ มี $H_2SO_4 \, 16.0 \, \text{g}$ ($0.163 \, \text{mol}$) และน้ำ $84.0 \, \text{g}$ ($0.084 \, \text{kg}$):</p>
-                        <p class="pl-4 font-mono">$$m = \frac{0.163 \, \text{mol}}{0.084 \, \text{kg}} = 1.94 \, \text{m}$$</p>
-                        <p class="font-bold text-slate-900 border-t pt-2">ตอบ: มีความเข้มข้นเท่ากับ $1.81 \, \text{mol/L}$ ($1.81 \, \text{M}$)</p>
+                <!-- Q8 (Solutions) -->
+                <div class="quiz-question border border-slate-200 rounded-lg p-5" data-category="solution" data-answer="c">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">8. ความดันไอของสารละลายที่ประกอบด้วยของเหลว 2 ชนิด คำนวณได้จากกฎของใคร?</p>
+                    <div class="space-y-2">
+                        <label class="quiz-option"><input type="radio" name="q8" value="a"> ก. Henry's Law</label>
+                        <label class="quiz-option"><input type="radio" name="q8" value="b"> ข. Boyle's Law</label>
+                        <label class="quiz-option"><input type="radio" name="q8" value="c"> ค. Raoult's Law</label>
+                        <label class="quiz-option"><input type="radio" name="q8" value="d"> ง. Graham's Law</label>
                     </div>
                 </div>
 
-                <!-- Problem 9 (L08) -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-start cursor-pointer" onclick="toggleSolution('prob9')">
-                        <div>
-                            <span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-xs font-bold">โจทย์ L08: กฎของรออุลต์</span>
-                            <h3 class="font-bold text-slate-800 text-sm mt-1">ข้อที่ 9: ความดันไอของสารละลายผสมระเหยง่าย (Acetone + Ethyl acetate)</h3>
-                            <p class="text-xs text-slate-600 mt-1">ละลาย Acetone $25.0 \, \text{g}$ ($P^\circ = 285 \, \text{mmHg}$) ใน Ethyl acetate $25.0 \, \text{g}$ ($P^\circ = 118 \, \text{mmHg}$) ที่ $30^\circ\text{C}$ จงหาความดันไอรวม</p>
-                        </div>
-                        <button id="btn-prob9" class="text-xs font-bold text-teal-700 bg-white border border-teal-200 px-3 py-1.5 rounded-lg">แสดงวิธีทำ</button>
-                    </div>
-                    <div id="sol-prob9" class="hidden p-5 bg-white text-xs text-slate-700 space-y-2 border-t border-slate-100">
-                        <p class="font-bold text-purple-800">📌 เฉลยและวิธีทำอย่างเป็นขั้นตอน:</p>
-                        <p>1. หาโมล: $n_{acetone} = \frac{25.0}{58.08} = 0.4304 \, \text{mol}$, $n_{acetate} = \frac{25.0}{88.11} = 0.2837 \, \text{mol}$</p>
-                        <p>2. เศษส่วนโมล: $X_{acetone} = \frac{0.4304}{0.4304 + 0.2837} = 0.6027$, $X_{acetate} = 1 - 0.6027 = 0.3973$</p>
-                        <p>3. คำนวณความดันไอรวมตามกฎของรออุลต์ $P_{total} = X_A P_A^\circ + X_B P_B^\circ$:</p>
-                        <p class="pl-4 font-mono">$$P_{total} = (0.6027)(285) + (0.3973)(118) = 171.77 + 46.88 = 218.65 \, \text{mmHg}$$</p>
-                        <p class="font-bold text-slate-900 border-t pt-2">ตอบ: ความดันไอรวมของสารละลายเท่ากับ $218.65 \, \text{mmHg}$</p>
+                <!-- Q9 (Solutions) -->
+                <div class="quiz-question border border-slate-200 rounded-lg p-5" data-category="solution" data-answer="c">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">9. สารละลายใดต่อไปนี้มีจุดเยือกแข็งต่ำที่สุด (สมมติความเข้มข้นโมแลลเท่ากัน)?</p>
+                    <div class="space-y-2">
+                        <label class="quiz-option"><input type="radio" name="q9" value="a"> ก. กลูโคส</label>
+                        <label class="quiz-option"><input type="radio" name="q9" value="b"> ข. $NaCl$</label>
+                        <label class="quiz-option"><input type="radio" name="q9" value="c"> ค. $CaCl_2$</label>
+                        <label class="quiz-option"><input type="radio" name="q9" value="d"> ง. ยูเรีย</label>
                     </div>
                 </div>
 
-                <!-- Problem 10 (L08) -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="p-5 bg-slate-50 border-b border-slate-200 flex justify-between items-start cursor-pointer" onclick="toggleSolution('prob10')">
-                        <div>
-                            <span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-xs font-bold">โจทย์ L08: คอลลิเกทีฟ & อิเล็กโทรไลต์</span>
-                            <h3 class="font-bold text-slate-800 text-sm mt-1">ข้อที่ 10: คำนวณจุดเดือดของอิเล็กโทรไลต์แตกตัวบางส่วน ($A_2B_3$)</h3>
-                            <p class="text-xs text-slate-600 mt-1">สารละลาย $A_2B_3$ เข้มข้น $1.0 \, \text{m}$ มีระดับการแตกตัว ($\alpha$) เท่ากับ 60% จงหาจุดเดือดของสารละลาย ($K_b = 0.52 \, \text{K kg/mol}$)</p>
-                        </div>
-                        <button id="btn-prob10" class="text-xs font-bold text-teal-700 bg-white border border-teal-200 px-3 py-1.5 rounded-lg">แสดงวิธีทำ</button>
-                    </div>
-                    <div id="sol-prob10" class="hidden p-5 bg-white text-xs text-slate-700 space-y-2 border-t border-slate-100">
-                        <p class="font-bold text-purple-800">📌 เฉลยและวิธีทำอย่างเป็นขั้นตอน:</p>
-                        <p>1. จำนวนไอออนสูงสุดทางทฤษฎี $n = 2 + 3 = 5$ ไอออน</p>
-                        <p>2. คำนวณแฟกเตอร์แวนต์โฮฟ $i = 1 + \alpha(n - 1) = 1 + 0.60(5 - 1) = 1 + 2.4 = 3.4$</p>
-                        <p>3. คำนวณจุดเดือดที่เพิ่มขึ้น $\Delta T_b = i \cdot K_b \cdot m = 3.4 \times 0.52 \times 1.0 = 1.768^\circ\text{C}$</p>
-                        <p>4. จุดเดือดใหม่ $T_b = 100 + 1.768 = 101.77^\circ\text{C}$ (หรือ $374.92 \, \text{K}$)</p>
-                        <p class="font-bold text-slate-900 border-t pt-2">ตอบ: จุดเดือดของสารละลายนี้คือ $101.77^\circ\text{C}$</p>
+                <!-- Q10 (Solutions) -->
+                <div class="quiz-question border border-slate-200 rounded-lg p-5" data-category="solution" data-answer="a">
+                    <p class="font-semibold text-lg text-slate-800 mb-3">10. อุณหพลศาสตร์ของการละลาย (Enthalpy of Solution) จะเป็นการคายความร้อน (Exothermic) เมื่อใด?</p>
+                    <div class="space-y-2">
+                        <label class="quiz-option"><input type="radio" name="q10" value="a"> ก. พลังงาน Hydration มากกว่าพลังงานที่ใช้แยกตัวทำละลายและตัวถูกละลาย</label>
+                        <label class="quiz-option"><input type="radio" name="q10" value="b"> ข. พลังงาน Hydration น้อยกว่าพลังงานที่ใช้แยก</label>
+                        <label class="quiz-option"><input type="radio" name="q10" value="c"> ค. โมเลกุลมีขนาดใหญ่</label>
+                        <label class="quiz-option"><input type="radio" name="q10" value="d"> ง. การละลายเกิดขึ้นที่อุณหภูมิสูงเท่านั้น</label>
                     </div>
                 </div>
 
-            </div>
-        </section>
-
-
-        <!-- SECTION 5: QUIZ & DASHBOARD -->
-        <section id="section-quiz" class="hidden space-y-6">
-            <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-                <h2 class="text-xl font-bold text-slate-900 mb-1">🎯 แบบทดสอบประเมินตนเอง 10 ข้อ (Self-Assessment Interactive Quiz)</h2>
-                <p class="text-sm text-slate-600">
-                    วัดระดับความเข้าใจมโนทัศน์และการคำนวณบทเรียน L05-L08 พร้อมระบบประเมินวิเคราะห์จุดแข็ง-จุดพัฒนาบนแดชบอร์ดทันที
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Quiz Area -->
-                <div class="lg:col-span-2 space-y-4" id="quiz-questions-container">
-                    
-                    <!-- Q1 -->
-                    <div class="quiz-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="font-bold text-xs text-teal-700 uppercase">ข้อที่ 1 (L05: ก๊าซจริง)</div>
-                        <p class="text-sm text-slate-800 font-medium">ก๊าซจริงจะแสดงพฤติกรรมเบี่ยงเบนจากกฎก๊าซอุดมคติมากที่สุดในสภาวะใด?</p>
-                        <div class="space-y-1.5 text-xs">
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="a" class="accent-teal-600"> <span>ก. ความดันต่ำ และ อุณหภูมิสูง</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="b" class="accent-teal-600"> <span>ข. ความดันสูง และ อุณหภูมิต่ำ</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="c" class="accent-teal-600"> <span>ค. ความดันต่ำ และ อุณหภูมิต่ำ</span></label>
-                        </div>
-                    </div>
-
-                    <!-- Q2 -->
-                    <div class="quiz-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="font-bold text-xs text-teal-700 uppercase">ข้อที่ 2 (L05: Graham's Law)</div>
-                        <p class="text-sm text-slate-800 font-medium">หากก๊าซ $A$ มีมวลโมเลกุลเป็น 4 เท่าของก๊าซ $B$ อัตราการแพร่ผ่านของก๊าซ $B$ จะเป็นกี่เท่าของก๊าซ $A$?</p>
-                        <div class="space-y-1.5 text-xs">
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="a" class="accent-teal-600"> <span>ก. 0.5 เท่า</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="b" class="accent-teal-600"> <span>ข. 2 เท่า</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="c" class="accent-teal-600"> <span>ค. 4 เท่า</span></label>
-                        </div>
-                    </div>
-
-                    <!-- Q3 -->
-                    <div class="quiz-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="font-bold text-xs text-blue-700 uppercase">ข้อที่ 3 (L06: ผลึกศาสตร์)</div>
-                        <p class="text-sm text-slate-800 font-medium">ยูนิตเซลล์แบบ Body-Centered Cubic (BCC) มีจำนวนอะตอมสุทธิต่อยูนิตเซลล์กี่อะตอม?</p>
-                        <div class="space-y-1.5 text-xs">
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="a" class="accent-teal-600"> <span>ก. 1 อะตอม</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="b" class="accent-teal-600"> <span>ข. 2 อะตอม</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="c" class="accent-teal-600"> <span>ค. 4 อะตอม</span></label>
-                        </div>
-                    </div>
-
-                    <!-- Q4 -->
-                    <div class="quiz-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="font-bold text-xs text-blue-700 uppercase">ข้อที่ 4 (L06: Phase Diagram)</div>
-                        <p class="text-sm text-slate-800 font-medium">เหตุใดเส้นแบ่ง Solid-Liquid ของน้ำจึงมีความชันเป็นลบ (Negative Slope)?</p>
-                        <div class="space-y-1.5 text-xs">
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="a" class="accent-teal-600"> <span>ก. ความหนาแน่นน้ำแข็งน้อยกว่าน้ำเหลวเนื่องจากโครงสร้างพันธะไฮโดรเจน</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="b" class="accent-teal-600"> <span>ข. ความดันไอของน้ำแข็งสูงกว่าน้ำเหลว</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="c" class="accent-teal-600"> <span>ค. น้ำเป็นสารไม่มีขั้ว</span></label>
-                        </div>
-                    </div>
-
-                    <!-- Q5 -->
-                    <div class="quiz-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="font-bold text-xs text-blue-700 uppercase">ข้อที่ 5 (L06: CuCl Crystal)</div>
-                        <p class="text-xs font-bold text-blue-700 uppercase">ในผลึก Copper(I) Chloride ($CuCl$) ไอออน $Cu^+$ บรรจุอยู่ในช่องว่างประเภทใด?</p>
-                        <div class="space-y-1.5 text-xs">
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="a" class="accent-teal-600"> <span>ก. Octahedral holes</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="b" class="accent-teal-600"> <span>ข. Tetrahedral holes (ครึ่งหนึ่ง)</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="c" class="accent-teal-600"> <span>ค. Simple Cubic Center</span></label>
-                        </div>
-                    </div>
-
-                    <!-- Q6 -->
-                    <div class="quiz-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="font-bold text-xs text-indigo-700 uppercase">ข้อที่ 6 (L07: ความเข้มข้น)</div>
-                        <p class="text-sm text-slate-800 font-medium">หน่วยความเข้มข้นใดต่อไปนี้มีค่าเปลี่ยนแปลงเมื่ออุณหภูมิของระบบเปลี่ยนแปลง?</p>
-                        <div class="space-y-1.5 text-xs">
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="a" class="accent-teal-600"> <span>ก. Molality (m)</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="b" class="accent-teal-600"> <span>ข. Molarity (M)</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="c" class="accent-teal-600"> <span>ค. Mole fraction (X)</span></label>
-                        </div>
-                    </div>
-
-                    <!-- Q7 -->
-                    <div class="quiz-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="font-bold text-xs text-indigo-700 uppercase">ข้อที่ 7 (L07: อุณหพลศาสตร์)</div>
-                        <p class="text-sm text-slate-800 font-medium">การละลายของสารที่จะเกิดขึ้นได้เองตามธรรมชาติในสภาวะส่วนใหญ่ต้องมีปัจจัยใดสนับสนุน?</p>
-                        <div class="space-y-1.5 text-xs">
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="a" class="accent-teal-600"> <span>ก. เอนโทรปีของการละลายเป็นบวก ($\Delta S_{soln} > 0$)</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="b" class="accent-teal-600"> <span>ข. เอนทาลปีของการละลายเป็นบวกเสมอ</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="c" class="accent-teal-600"> <span>ค. แรงดึงดูดระหว่างโมเลกุลสารละลายเป็นศูนย์</span></label>
-                        </div>
-                    </div>
-
-                    <!-- Q8 -->
-                    <div class="quiz-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="font-bold text-xs text-purple-700 uppercase">ข้อที่ 8 (L08: คอลลิเกทีฟ)</div>
-                        <p class="text-sm text-slate-800 font-medium">สารละลายในข้อใดต่อไปนี้ (ความเข้มข้น $0.1 \, \text{m}$ เท่ากัน) มีจุดเยือกแข็งต่ำที่สุด?</p>
-                        <div class="space-y-1.5 text-xs">
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="a" class="accent-teal-600"> <span>ก. Glucose ($i=1$)</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="b" class="accent-teal-600"> <span>ข. $NaCl$ ($i=2$)</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="c" class="accent-teal-600"> <span>ค. $CaCl_2$ ($i=3$)</span></label>
-                        </div>
-                    </div>
-
-                    <!-- Q9 -->
-                    <div class="quiz-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="font-bold text-xs text-purple-700 uppercase">ข้อที่ 9 (L08: Ion Pairing)</div>
-                        <p class="text-sm text-slate-800 font-medium">ค่าแฟกเตอร์แวนต์โฮฟ ($i$) ในทางปฏิบัติมักน้อยกว่าค่าทางทฤษฎี เกิดจากปรากฏการณ์ใด?</p>
-                        <div class="space-y-1.5 text-xs">
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q9" value="a" class="accent-teal-600"> <span>ก. การจับคู่ของไอออน (Ion Pairing)</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q9" value="b" class="accent-teal-600"> <span>ข. การระเหยของตัวถูกละลาย</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q9" value="c" class="accent-teal-600"> <span>ค. การเกิดการควบแน่น</span></label>
-                        </div>
-                    </div>
-
-                    <!-- Q10 -->
-                    <div class="quiz-card bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <div class="font-bold text-xs text-purple-700 uppercase">ข้อที่ 10 (L08: กฎของรออุลต์)</div>
-                        <p class="text-sm text-slate-800 font-medium">เมื่อใส่ตัวถูกละลายที่ไม่ระเหยลงในตัวทำละลายบริสุทธิ์ จะส่งผลอย่างไรต่อความดันไอของสารละลาย?</p>
-                        <div class="space-y-1.5 text-xs">
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q10" value="a" class="accent-teal-600"> <span>ก. ความดันไอเพิ่มขึ้น</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q10" value="b" class="accent-teal-600"> <span>ข. ความดันไอลดลง ($\Delta P = X_{solute} P^\circ$)</span></label>
-                            <label class="flex items-center space-x-2 p-2 rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q10" value="c" class="accent-teal-600"> <span>ค. ความดันไอไม่เปลี่ยนแปลง</span></label>
-                        </div>
-                    </div>
-
-                    <button onclick="submitQuiz()" class="w-full py-3 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl text-sm shadow-md transition-all">
-                        ส่งคำตอบและวิเคราะห์ผลบนแดชบอร์ด
-                    </button>
-                </div>
-
-                <!-- Quiz Dashboard / Result Card -->
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit space-y-4 sticky top-20">
-                    <h3 class="font-bold text-slate-900 border-b border-slate-200 pb-2 text-sm">📊 แดชบอร์ดวิเคราะห์ผลสอบ</h3>
-                    <div id="quiz-result-summary" class="text-center py-2 space-y-1">
-                        <p class="text-xs text-slate-500">คะแนนประเมินรวม:</p>
-                        <div class="text-3xl font-extrabold text-slate-300" id="quiz-score-display">0 / 10</div>
-                        <p class="text-xs text-slate-400" id="quiz-feedback-text">กดส่งคำตอบเพื่อแสดงกราฟวิเคราะห์ทักษะ</p>
-                    </div>
-                    <div class="chart-container" style="height: 240px;">
-                        <canvas id="quizRadarCanvas"></canvas>
-                    </div>
+                <div class="text-center pt-6">
+                    <button id="submit-quiz" onclick="evaluateQuiz()" class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700 transition-colors transform hover:-translate-y-1">ตรวจคำตอบและดูผลประเมิน</button>
                 </div>
             </div>
-        </section>
+
+            <!-- Quiz Results Container -->
+            <div id="quiz-results" class="hidden mt-10 p-6 bg-slate-50 border border-slate-200 rounded-xl">
+                <h3 class="text-2xl font-bold text-center text-slate-800 mb-6">สรุปผลการทดสอบแยกตามบทเรียน</h3>
+                <div class="w-full max-w-lg mx-auto bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                <div class="text-center mt-6">
+                    <button onclick="resetQuiz()" class="px-6 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-colors">ทำข้อสอบใหม่อีกครั้ง</button>
+                </div>
+            </div>
+
+        </div>
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 mt-12 py-6">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-1">
-            <p>ChemLearn Digital Architecture Platform • ระบบการเรียนรู้ดิจิทัลเคมีทั่วไป (L05-L08)</p>
-            <p>ออกแบบโครงสร้างข้อมูลตามหลักสถาปัตยกรรมข้อมูลเพื่อลดภาระทางสติปัญญา (Cognitive Load Reduction)</p>
-        </div>
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-sm mt-auto">
+        <p class="mb-2">Chemistry Learning Platform L05-L08 &copy; 2024</p>
+        <p class="text-slate-500">สร้างขึ้นเพื่อช่วยเตรียมตัวสอบ ทบทวนทฤษฎีและคำนวณอย่างมั่นใจ</p>
     </footer>
 
-    <!-- JavaScript Logic -->
+    <!-- JavaScript for Interactivity -->
     <script>
-        // Global State & Charts
-        let currentTab = 'theory';
-        let maxwellChart = null;
-        let phaseChart = null;
-        let colligativeChart = null;
-        let quizRadarChart = null;
+        // Tab Navigation Logic
+        function switchTab(tabId, btnElement) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Remove active styling from all buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-600', 'text-indigo-600', 'active');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+            
+            // Show selected content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Set active state on clicked button
+            if (btnElement) {
+                btnElement.classList.remove('border-transparent', 'text-slate-500');
+                btnElement.classList.add('border-indigo-600', 'text-indigo-600', 'active');
+            }
+        }
 
-        // On DOM Loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            initKaTeX();
-            initMaxwellChart();
-            initPhaseChart();
-            initColligativeChart();
-            initQuizRadarChart();
-        });
+        // Problems Toggle Solution Logic
+        function toggleSolution(solId, btnElement) {
+            const solDiv = document.getElementById(solId);
+            const isHidden = solDiv.classList.contains('hidden');
+            
+            if (isHidden) {
+                solDiv.classList.remove('hidden');
+                btnElement.textContent = 'ซ่อนเฉลย';
+                btnElement.classList.replace('bg-blue-50', 'bg-slate-100');
+                btnElement.classList.replace('text-blue-700', 'text-slate-700');
+                btnElement.classList.replace('border-blue-200', 'border-slate-300');
+            } else {
+                solDiv.classList.add('hidden');
+                btnElement.textContent = 'แสดงเฉลย';
+                btnElement.classList.replace('bg-slate-100', 'bg-blue-50');
+                btnElement.classList.replace('text-slate-700', 'text-blue-700');
+                btnElement.classList.replace('border-slate-300', 'border-blue-200');
+            }
+        }
 
-        // KaTeX Typesetting Trigger
-        function initKaTeX() {
-            if (window.renderMathInElement) {
-                renderMathInElement(document.body, {
-                    delimiters: [
-                        {left: '$$', right: '$$', display: true},
-                        {left: '$', right: '$', display: false}
-                    ],
-                    throwOnError: false
+        // Quiz Logic & Chart.js Integration
+        let radarChartInstance = null;
+
+        function evaluateQuiz() {
+            let totalScore = 0;
+            const categoryScores = { gas: 0, liquid: 0, solid: 0, solution: 0 };
+            const categoryTotals = { gas: 3, liquid: 2, solid: 2, solution: 3 };
+
+            // Disable button
+            document.getElementById('submit-quiz').disabled = true;
+            document.getElementById('submit-quiz').classList.add('opacity-50', 'cursor-not-allowed');
+
+            const questions = document.querySelectorAll('.quiz-question');
+            
+            questions.forEach(q => {
+                const correctAnswer = q.getAttribute('data-answer');
+                const category = q.getAttribute('data-category');
+                
+                // Reset styles
+                q.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.classList.remove('correct-answer', 'wrong-answer');
+                    opt.querySelector('input').disabled = true; // lock input
                 });
-            }
-        }
 
-        // Tab Switcher
-        function switchTab(tabId) {
-            currentTab = tabId;
-            const tabs = ['theory', 'simulators', 'formulas', 'problems', 'quiz'];
-            tabs.forEach(t => {
-                const sec = document.getElementById(`section-${t}`);
-                const btn = document.getElementById(`nav-${t}`);
-                if (t === tabId) {
-                    sec.classList.remove('hidden');
-                    btn.classList.add('active');
+                const selectedOption = q.querySelector('input[type="radio"]:checked');
+                
+                if (selectedOption) {
+                    if (selectedOption.value === correctAnswer) {
+                        totalScore++;
+                        categoryScores[category]++;
+                        selectedOption.parentElement.classList.add('correct-answer');
+                    } else {
+                        selectedOption.parentElement.classList.add('wrong-answer');
+                        // highlight correct one
+                        q.querySelector(`input[value="${correctAnswer}"]`).parentElement.classList.add('correct-answer');
+                    }
                 } else {
-                    sec.classList.add('hidden');
-                    btn.classList.remove('active');
+                    // if skipped, just show the correct one
+                    q.querySelector(`input[value="${correctAnswer}"]`).parentElement.classList.add('correct-answer');
                 }
             });
 
-            // Re-render KaTeX math when switching tabs
-            setTimeout(initKaTeX, 50);
+            // Update UI
+            document.getElementById('final-score').textContent = totalScore;
+            document.getElementById('score-display').classList.remove('hidden');
+            document.getElementById('quiz-results').classList.remove('hidden');
 
-            // Resize charts if switching to simulators or quiz
-            if (tabId === 'simulators') {
-                if (maxwellChart) maxwellChart.resize();
-                if (phaseChart) phaseChart.resize();
-                if (colligativeChart) colligativeChart.resize();
-            } else if (tabId === 'quiz') {
-                if (quizRadarChart) quizRadarChart.resize();
-            }
+            // Render Radar Chart
+            renderChart(categoryScores, categoryTotals);
         }
 
-        // Theory Filter
-        function filterTheory(chapter) {
-            const pills = ['all', 'l05', 'l06', 'l07', 'l08'];
-            pills.forEach(p => {
-                const el = document.getElementById(`pill-${p}`);
-                if (p === chapter) el.classList.add('active');
-                else el.classList.remove('active');
-            });
+        function renderChart(scores, totals) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            // Calculate percentages for the chart
+            const data = [
+                (scores.gas / totals.gas) * 100,
+                (scores.liquid / totals.liquid) * 100,
+                (scores.solid / totals.solid) * 100,
+                (scores.solution / totals.solution) * 100
+            ];
 
-            const cards = document.querySelectorAll('.theory-card');
-            cards.forEach(card => {
-                if (chapter === 'all' || card.classList.contains(chapter)) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-        }
-
-        // --- SIMULATOR 1: MAXWELL-BOLTZMANN ---
-        function initMaxwellChart() {
-            const ctx = document.getElementById('maxwellChartCanvas').getContext('2d');
-            maxwellChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'ความน่าจะเป็น f(v)',
-                            data: [],
-                            borderColor: '#0f766e',
-                            backgroundColor: 'rgba(15, 118, 110, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 0
-                        },
-                        {
-                            label: 'ระดับ Ea Cutoff',
-                            data: [],
-                            borderColor: '#d97706',
-                            borderWidth: 2,
-                            borderDash: [6, 6],
-                            pointRadius: 0,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { font: { size: 11 } } },
-                        tooltip: { mode: 'index', intersect: false }
-                    },
-                    scales: {
-                        x: { title: { display: true, text: 'ความเร็วโมเลกุล v (m/s)', font: { size: 11 } } },
-                        y: { title: { display: true, text: 'ความน่าจะเป็น f(v)', font: { size: 11 } }, ticks: { display: false } }
-                    }
-                }
-            });
-            updateMaxwellChart();
-        }
-
-        function updateMaxwellChart() {
-            if (!maxwellChart) return;
-
-            const mw = parseFloat(document.getElementById('mb-gas-select').value) / 1000;
-            const temp = parseFloat(document.getElementById('mb-temp-slider').value);
-            const ea = parseFloat(document.getElementById('mb-ea-slider').value);
-
-            document.getElementById('mb-temp-val').innerText = `${temp} K`;
-            document.getElementById('mb-ea-val').innerText = `${ea} m/s`;
-
-            const R = 8.314;
-            const v_mp = Math.sqrt((2 * R * temp) / mw);
-            const v_avg = Math.sqrt((8 * R * temp) / (Math.PI * mw));
-            const v_rms = Math.sqrt((3 * R * temp) / mw);
-
-            document.getElementById('stat-vmp').innerText = `${Math.round(v_mp)} m/s`;
-            document.getElementById('stat-vavg').innerText = `${Math.round(v_avg)} m/s`;
-            document.getElementById('stat-vrms').innerText = `${Math.round(v_rms)} m/s`;
-
-            const maxV = Math.max(2000, v_mp * 3);
-            const step = maxV / 60;
-            const labels = [];
-            const pdfData = [];
-
-            let sumTotal = 0;
-            let sumAboveEa = 0;
-
-            for (let v = 0; v <= maxV; v += step) {
-                labels.push(Math.round(v));
-                const factor = 4 * Math.PI * Math.pow(mw / (2 * Math.PI * R * temp), 1.5);
-                const prob = factor * Math.pow(v, 2) * Math.exp((-mw * Math.pow(v, 2)) / (2 * R * temp));
-                pdfData.push(prob);
-
-                sumTotal += prob;
-                if (v >= ea) sumAboveEa += prob;
+            if (radarChartInstance) {
+                radarChartInstance.destroy();
             }
 
-            const fraction = Math.min(100, Math.max(0, (sumAboveEa / sumTotal) * 100)).toFixed(1);
-            document.getElementById('stat-fraction').innerText = `${fraction} %`;
-
-            maxwellChart.data.labels = labels;
-            maxwellChart.data.datasets[0].data = pdfData;
-
-            const eaDataset = labels.map(l => (Math.abs(l - ea) < step ? Math.max(...pdfData) : null));
-            maxwellChart.data.datasets[1].data = eaDataset;
-
-            maxwellChart.update();
-        }
-
-
-        // --- SIMULATOR 2: PHASE DIAGRAM EXPLORER ---
-        function initPhaseChart() {
-            const ctx = document.getElementById('phaseChartCanvas').getContext('2d');
-            phaseChart = new Chart(ctx, {
-                type: 'line',
-                data: { datasets: [] },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { font: { size: 10 } } }
-                    },
-                    scales: {
-                        x: { type: 'linear', position: 'bottom', title: { display: true, text: 'อุณหภูมิ (°C)', font: { size: 11 } } },
-                        y: { type: 'logarithmic', title: { display: true, text: 'ความดัน (atm, Log scale)', font: { size: 11 } } }
-                    }
-                }
-            });
-            togglePhaseSubstance('h2o');
-        }
-
-        function togglePhaseSubstance(type) {
-            const btnH2O = document.getElementById('btn-phase-h2o');
-            const btnCO2 = document.getElementById('btn-phase-co2');
-            const title = document.getElementById('phase-title');
-            const desc = document.getElementById('phase-description');
-
-            if (type === 'h2o') {
-                btnH2O.className = "px-3 py-1 bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors";
-                btnCO2.className = "px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors";
-                title.innerText = "💧 แผนภาพวัฏภาคของน้ำ (H2O)";
-                desc.innerHTML = `
-                    <p>**Triple Point:** 0.01 °C, 0.006 atm (สภาวะที่ของแข็ง ของเหลว และก๊าซ สมดุลร่วมกัน)</p>
-                    <p>**Critical Point:** 374 °C, 218 atm (เหนือจุดนี้กลายเป็นของไหลยิ่งยวด Supercritical Fluid)</p>
-                    <div class="p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-blue-900">
-                        **เหตุผลทางฟิสิกส์เคมี:** เส้น Solid-Liquid มีความชันเป็นลบ (Negative Slope) เนื่องจากผลึกน้ำแข็งมีโครงสร้างพันธะไฮโดรเจนโปร่ง ความหนาแน่นน้อยกว่าน้ำเหลว เมื่ออัดความดันสูง น้ำแข็งจะละลายกลายเป็นของเหลว
-                    </div>
-                `;
-
-                phaseChart.data.datasets = [
-                    {
-                        label: 'Solid-Liquid (Slope ลบ)',
-                        data: [{x: 0.01, y: 0.006}, {x: -5, y: 100}, {x: -10, y: 200}],
-                        borderColor: '#2563eb',
-                        borderWidth: 3,
-                        fill: false
-                    },
-                    {
-                        label: 'Liquid-Vapor',
-                        data: [{x: 0.01, y: 0.006}, {x: 100, y: 1}, {x: 374, y: 218}],
-                        borderColor: '#059669',
-                        borderWidth: 2,
-                        fill: false
-                    },
-                    {
-                        label: 'Solid-Vapor (Sublimation)',
-                        data: [{x: -50, y: 0.0001}, {x: 0.01, y: 0.006}],
-                        borderColor: '#9333ea',
-                        borderWidth: 2,
-                        fill: false
-                    }
-                ];
-            } else {
-                btnCO2.className = "px-3 py-1 bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors";
-                btnH2O.className = "px-3 py-1 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors";
-                title.innerText = "🧊 แผนภาพวัฏภาคของคาร์บอนไดออกไซด์ (CO2)";
-                desc.innerHTML = `
-                    <p>**Triple Point:** -56.6 °C, 5.11 atm (ที่ความดัน 1 atm CO2 จะระเหิดกลายเป็นไอโดยไม่ผ่านของเหลว)</p>
-                    <p>**Critical Point:** 31 °C, 73 atm (ใช้ในอุตสาหกรรมสกัดด้วย Supercritical CO2)</p>
-                    <div class="p-2.5 bg-slate-100 border border-slate-200 rounded-lg text-slate-800">
-                        **พฤติกรรมมาตรฐาน:** เส้น Solid-Liquid มีความชันเป็นบวก (Positive Slope) เหมือนสารส่วนใหญ่ เนื่องจากสถานะของแข็งมีความหนาแน่นมากกว่าของเหลว
-                    </div>
-                `;
-
-                phaseChart.data.datasets = [
-                    {
-                        label: 'Solid-Liquid (Slope บวก)',
-                        data: [{x: -56.6, y: 5.11}, {x: -40, y: 50}, {x: -20, y: 200}],
-                        borderColor: '#dc2626',
-                        borderWidth: 3,
-                        fill: false
-                    },
-                    {
-                        label: 'Liquid-Vapor',
-                        data: [{x: -56.6, y: 5.11}, {x: 0, y: 34}, {x: 31, y: 73}],
-                        borderColor: '#059669',
-                        borderWidth: 2,
-                        fill: false
-                    },
-                    {
-                        label: 'Solid-Vapor (Sublimation @ 1 atm)',
-                        data: [{x: -100, y: 0.01}, {x: -78.5, y: 1}, {x: -56.6, y: 5.11}],
-                        borderColor: '#9333ea',
-                        borderWidth: 2,
-                        fill: false
-                    }
-                ];
-            }
-            phaseChart.update();
-        }
-
-
-        // --- SIMULATOR 3: COLLIGATIVE CALCULATOR ---
-        function initColligativeChart() {
-            const ctx = document.getElementById('colligativeChartCanvas').getContext('2d');
-            colligativeChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['น้ำบริสุทธิ์', 'กลูโคส (i=1)', 'NaCl (i=2)', 'CaCl2 (i=3)', 'Al2(SO4)3 (i=5)'],
-                    datasets: [
-                        {
-                            label: 'จุดเยือกแข็ง (°C)',
-                            data: [0, -1.86, -3.72, -5.58, -9.30],
-                            backgroundColor: ['#94a3b8', '#38bdf8', '#0284c7', '#4f46e5', '#7c3aed']
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { title: { display: true, text: 'อุณหภูมิจุดเยือกแข็ง (°C)', font: { size: 11 } } } }
-                }
-            });
-            calculateColligative();
-        }
-
-        function calculateColligative() {
-            const solventMassG = parseFloat(document.getElementById('col-solvent-mass').value) || 1000;
-            const soluteType = document.getElementById('col-solute-type').value;
-            const soluteMassG = parseFloat(document.getElementById('col-solute-mass').value) || 58.5;
-
-            let i = 1;
-            let mw = 180;
-
-            if (soluteType === 'glucose') { i = 1; mw = 180; }
-            else if (soluteType === 'nacl') { i = 2; mw = 58.5; }
-            else if (soluteType === 'cacl2') { i = 3; mw = 111; }
-            else if (soluteType === 'al2so43') { i = 5; mw = 342; }
-
-            const moles = soluteMassG / mw;
-            const solventKg = solventMassG / 1000;
-            const molality = moles / solventKg;
-
-            const Kb = 0.52;
-            const Kf = 1.86;
-
-            const deltaTb = i * Kb * molality;
-            const deltaTf = i * Kf * molality;
-
-            const Tb = 100 + deltaTb;
-            const Tf = 0 - deltaTf;
-
-            const R = 0.0821;
-            const T = 298.15;
-            const pi = i * molality * R * T;
-
-            document.getElementById('col-res-m').innerText = `${molality.toFixed(2)} m`;
-            document.getElementById('col-res-tb').innerText = `${Tb.toFixed(2)} °C`;
-            document.getElementById('col-res-tf').innerText = `${Tf.toFixed(2)} °C`;
-            document.getElementById('col-res-pi').innerText = `${pi.toFixed(1)} atm`;
-
-            if (colligativeChart) {
-                const refMolality = molality;
-                colligativeChart.data.datasets[0].data = [
-                    0,
-                    -(1 * Kf * refMolality).toFixed(2),
-                    -(2 * Kf * refMolality).toFixed(2),
-                    -(3 * Kf * refMolality).toFixed(2),
-                    -(5 * Kf * refMolality).toFixed(2)
-                ];
-                colligativeChart.update();
-            }
-        }
-
-
-        // --- FORMULA SEARCH LOGIC ---
-        function searchFormulas() {
-            const query = document.getElementById('formula-search').value.toLowerCase();
-            const cards = document.querySelectorAll('.formula-card');
-            cards.forEach(card => {
-                const text = card.innerText.toLowerCase();
-                if (text.includes(query)) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-        }
-
-
-        // --- PROBLEM ACCORDION LOGIC ---
-        function toggleSolution(id) {
-            const sol = document.getElementById(`sol-${id}`);
-            const btn = document.getElementById(`btn-${id}`);
-            if (sol.classList.contains('hidden')) {
-                sol.classList.remove('hidden');
-                btn.innerText = "ซ่อนวิธีทำ";
-                btn.classList.replace('text-teal-700', 'text-slate-600');
-            } else {
-                sol.classList.add('hidden');
-                btn.innerText = "แสดงวิธีทำ";
-                btn.classList.replace('text-slate-600', 'text-teal-700');
-            }
-        }
-
-
-        // --- QUIZ LOGIC & RADAR DASHBOARD ---
-        function initQuizRadarChart() {
-            const ctx = document.getElementById('quizRadarCanvas').getContext('2d');
-            quizRadarChart = new Chart(ctx, {
+            radarChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['L05: ก๊าซ', 'L06: ผลึกศาสตร์', 'L07: สารละลาย', 'L08: คอลลิเกทีฟ'],
+                    labels: ['แก๊ส (Gases)', 'ของเหลว (Liquids)', 'ของแข็ง (Solids)', 'สารละลาย (Solutions)'],
                     datasets: [{
-                        label: 'ระดับความเข้าใจ (%)',
-                        data: [0, 0, 0, 0],
-                        backgroundColor: 'rgba(15, 118, 110, 0.2)',
-                        borderColor: '#0f766e',
+                        label: 'ความเข้าใจ (%)',
+                        data: data,
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)', // Indigo
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(99, 102, 241, 1)',
                         borderWidth: 2
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
                     scales: {
-                        r: { min: 0, max: 100, ticks: { display: false } }
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: {
+                                font: { size: 14, family: "'Sarabun', sans-serif" },
+                                color: '#475569'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: {
+                                stepSize: 25,
+                                backdropColor: 'transparent',
+                                color: '#94a3b8'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw.toFixed(0) + '%';
+                                }
+                            }
+                        }
                     }
                 }
             });
         }
 
-        function submitQuiz() {
-            let score = 0;
-            const answers = { 
-                q1: 'b', q2: 'b', q3: 'b', q4: 'a', q5: 'b', 
-                q6: 'b', q7: 'a', q8: 'c', q9: 'a', q10: 'b' 
-            };
+        function resetQuiz() {
+            const questions = document.querySelectorAll('.quiz-question');
+            questions.forEach(q => {
+                q.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.classList.remove('correct-answer', 'wrong-answer');
+                    opt.querySelector('input').disabled = false;
+                    opt.querySelector('input').checked = false;
+                });
+            });
 
-            let correctL05 = 0, totalL05 = 2;
-            let correctL06 = 0, totalL06 = 3;
-            let correctL07 = 0, totalL07 = 2;
-            let correctL08 = 0, totalL08 = 3;
-
-            for (let i = 1; i <= 10; i++) {
-                const userVal = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-                if (userVal === answers[`q${i}`]) {
-                    score++;
-                    if (i <= 2) correctL05++;
-                    else if (i <= 5) correctL06++;
-                    else if (i <= 7) correctL07++;
-                    else correctL08++;
-                }
-            }
-
-            const pctL05 = (correctL05 / totalL05) * 100;
-            const pctL06 = (correctL06 / totalL06) * 100;
-            const pctL07 = (correctL07 / totalL07) * 100;
-            const pctL08 = (correctL08 / totalL08) * 100;
-
-            document.getElementById('quiz-score-display').innerText = `${score} / 10`;
-            document.getElementById('quiz-score-display').className = score >= 8 ? "text-3xl font-extrabold text-teal-600" : (score >= 5 ? "text-3xl font-extrabold text-amber-600" : "text-3xl font-extrabold text-rose-600");
+            document.getElementById('submit-quiz').disabled = false;
+            document.getElementById('submit-quiz').classList.remove('opacity-50', 'cursor-not-allowed');
+            document.getElementById('score-display').classList.add('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
             
-            document.getElementById('quiz-feedback-text').innerText = score >= 8 ? "🌟 ยอดเยี่ยม! ท่านมีความเข้าใจมโนทัศน์เคมีระดับสูง" : "💡 ควรทบทวนบทเรียนที่ยังมีจุดอ่อนตามกราฟเรดาร์";
-
-            if (quizRadarChart) {
-                quizRadarChart.data.datasets[0].data = [pctL05, pctL06, pctL07, pctL08];
-                quizRadarChart.update();
-            }
+            // Scroll back to top of quiz
+            document.getElementById('tab-quiz').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
